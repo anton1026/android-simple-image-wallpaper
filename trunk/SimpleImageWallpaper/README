@@ -1,0 +1,24 @@
+ * Copyright (C) 2012 Android Simple Image Wallpaper (http://code.google.com/p/android-simple-image-wallpaper/)
+
+Android Simple Image Wallpaper is an android live wallpaper which
+lets you set your background to a non-scrolling image with a
+variety of settings. It is released under version 3 of the GPL; 
+see "COPYING" for the license text.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+
+As stated in individual files, this program uses open-source code from the following:
+Google Inc. (Apache License 2.0)
+http://code.google.com/p/dodge-android/ (GNU GPL v3)
+schollidesign - http://findicons.com/icon/93786/preferences_desktop_wallpaper (GNU GPL v3)
+
+CHANGES
+1.0
+Initial Version
+
+
+

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+ /*
+ * Copyright (C) 2012 Android Simple Image Wallpaper (http://code.google.com/p/android-simple-image-wallpaper/)
+ * 
+ * This program is free software: you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as published 
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *   
+ * This source code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <CheckBoxPreference
+                android:key="image_file_fill_screen"
+                android:title="Fill screen"
+                android:defaultValue="true"
+                android:summary="Image will be cropped as necessary to fill the screen both horizontally and vertically" />
+                
+        <CheckBoxPreference
+                android:key="image_file_rotate"
+                android:title="Rotate for best fit"
+                android:defaultValue="false"
+               android:summary="Automatically rotate the image so the long side of the image lines up with the long side of the screen" />
+               
+<!-- 
+		<PreferenceScreen 
+			android:key="full_image_uri" android:title="Image"
+			android:summary="[not set]">
+		</PreferenceScreen>
+-->
+
+		<com.ridgelineapps.simpleimagewallpaper.SelectImagePreference
+			android:key="image_file" android:title=""
+			android:layout="@layout/image_preference" />
+
+		<CheckBoxPreference android:key="portrait_image_set"
+			android:title="Portrait different"
+			android:summary="Use separate image for portrait mode" />
+
+		<com.ridgelineapps.simpleimagewallpaper.SelectPortraitImagePreference
+			android:key="image_file_portrait" 
+			android:title=""
+			android:layout="@layout/image_preference" 
+			android:dependency="portrait_image_set"
+			/>
+
+<!-- 
+		<PreferenceScreen 
+			android:key="portrait_full_image_uri" 
+			android:title="Portrait Image" 
+			android:dependency="portrait_image_set"
+			android:layout="?android:attr/preferenceLayoutChild"
+			android:summary="[not set]">
+		</PreferenceScreen>
+			 -->
+
+</PreferenceScreen>
