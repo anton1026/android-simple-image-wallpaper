@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="photosite_refresh_interval_values">
+        <item>1</item>
+        <item>10</item>
+        <item>60</item>
+        <item>1440</item>
+        <item>10080</item>
+    </string-array>
+    
+    <string-array name="photosite_refresh_interval_entries">
+        <item>1 Minute</item>
+        <item>10 Minutes</item>
+        <item>Hourly</item>
+        <item>Daily</item>
+        <item>Weekly</item>
+    </string-array>
+    
+    <string-array name="background_color_values">
+        <item>Black</item>
+        <item>DarkGray</item>
+        <item>LightGray</item>
+        <item>OffWhite</item>
+        <item>White</item>
+        <item>Blue</item>
+    </string-array>
+    
+    <string-array name="background_color_entries">
+        <item>Black</item>
+        <item>Dark gray</item>
+        <item>Light gray</item>
+        <item>Off white</item>
+        <item>White</item>
+        <item>Blue</item>
+    </string-array>
+
+    <string-array name="darken_duration_values">
+        <item>1</item>
+        <item>2</item>
+        <item>5</item>
+        <item>10</item>
+        <item>60</item>
+    </string-array>
+    
+    <string-array name="darken_duration_entries">
+        <item>1 Second</item>
+        <item>2 Seconds</item>
+        <item>5 Seconds</item>
+        <item>10 Seconds</item>
+        <item>1 Min.</item>
+    </string-array>
+
+    <string-array name="wp_values">
+        <item>SingleColor</item>
+        <item>ImageFile</item>
+        <item>Patterns</item>
+        <item>PhotoSite</item>
+    </string-array>
+    
+    <string-array name="wp_entries">
+        <item>Single Color</item>
+        <item>Image File</item>
+        <item>Patterns</item>
+        <item>Photo Site</item>
+    </string-array>
+    
+</resources>
