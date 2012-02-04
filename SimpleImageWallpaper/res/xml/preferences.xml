@@ -65,7 +65,7 @@
 
 	<PreferenceScreen android:title="Donate" android:summary="Tap here to visit the market page for our donation version.">
 		<intent android:action="android.intent.action.VIEW"
-			android:data="https://market.android.com/details?id=com.ridgelineapps.simpleimagewallpaper.donate" />
+			android:data="https://market.android.com/details?id=com.ridgelineapps.simpleimagewallpaperdonate" />
 	</PreferenceScreen>
 
 
