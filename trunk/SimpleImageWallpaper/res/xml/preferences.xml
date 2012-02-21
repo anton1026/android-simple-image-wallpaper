@@ -63,7 +63,7 @@
 		</PreferenceScreen>
 			 -->
 
-	<PreferenceScreen android:title="Donate" android:summary="If you like this app and want to help, tap here to visit the market page for the donation version.">
+	<PreferenceScreen android:title="Donate" android:summary="If you like this app and want to contribute, tap here to visit the market page for the donation version.">
 		<intent android:action="android.intent.action.VIEW"
 			android:data="https://market.android.com/details?id=com.ridgelineapps.simpleimagewallpaperdonate" />
 	</PreferenceScreen>
