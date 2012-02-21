@@ -34,6 +34,8 @@ public class DelegatingWallpaperService extends WallpaperService {
 
     public class SimpleWallpaperEngine extends Engine implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    	WallpaperService service = null;
+    	
         private final Handler handler = new Handler();
         private final Runnable drawRunner = new Runnable() {
             @Override
@@ -95,18 +97,32 @@ public class DelegatingWallpaperService extends WallpaperService {
 
         @Override
         public void onSurfaceDestroyed(SurfaceHolder holder) {
+        	System.out.println("Simple Image Wallpaper: onSurfaceDestroyed()");
             super.onSurfaceDestroyed(holder);
             this.visible = false;
             cleanupWallpaper();
-            handler.removeCallbacks(drawRunner);
+           	handler.removeCallbacks(drawRunner);
         }
+        
+        @Override
+		public void onDestroy() {
+        	System.out.println("Simple Image Wallpaper: onDestroy()");
+			super.onDestroy();
+            this.visible = false;
+            cleanupWallpaper();
+           	handler.removeCallbacks(drawRunner);
+            SharedPreferences prefs = getPrefs();
+            if(prefs != null)
+            	prefs.unregisterOnSharedPreferenceChangeListener(this);
+		}
 
-        public void cleanupWallpaper() {
+		public void cleanupWallpaper() {
             if (wallpaper != null) {
                 try {
                     WallpaperBase oldWallpaper = wallpaper;
                     wallpaper = null;
                     oldWallpaper.cleanup();
+                    oldWallpaper.engine = null;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -116,17 +132,11 @@ public class DelegatingWallpaperService extends WallpaperService {
         @SuppressWarnings("rawtypes")
         public synchronized void refreshWallpaper(boolean reload) {
         	
-            // TODO: how often to get these? is there way to only set them when changed easily?
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-            String wallpaperType = "ImageFile";
-            
             if (!reload && wallpaper != null) {
-                if(wallpaperType.equals("ImageFile") || wallpaperType.equals("PhotoSite")) {
-                    wallpaper.init(width, height, longSide, shortSide, false);
-                    wallpaper.drawPaused = false;
-                    drawAsap();
-                    return;
-                }
+                wallpaper.init(width, height, longSide, shortSide, false);
+                wallpaper.drawPaused = false;
+                drawAsap();
+                return;
             }
             
             cleanupWallpaper();

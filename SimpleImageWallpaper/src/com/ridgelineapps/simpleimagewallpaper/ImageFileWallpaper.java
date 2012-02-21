@@ -40,7 +40,6 @@ public class ImageFileWallpaper extends WallpaperBase {
     Paint bitmapPaint;
 
     public ImageFileWallpaper() {
-        allowsBlackout = true;
     }
     
     @Override
@@ -114,10 +113,6 @@ public class ImageFileWallpaper extends WallpaperBase {
                 if(!rotated) {
                     canvas.drawBitmap(bmp, null, dest, bitmapPaint);
                 }
-        
-                if(blackout) {
-                    canvas.drawRect(0, 0, width, height, blackoutPaint);
-                }
             } else {
                 canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), engine.background);
             }
@@ -179,11 +174,12 @@ public class ImageFileWallpaper extends WallpaperBase {
 
     @Override
     public void cleanup() {
-        if (image != null) {
+    	super.cleanup();
+        if (image != null && !image.isRecycled()) {
             image.recycle();
         }
 
-        if (imagePortrait != null && image != imagePortrait) {
+        if (imagePortrait != null && !imagePortrait.isRecycled()) {
             imagePortrait.recycle();
         }
         
