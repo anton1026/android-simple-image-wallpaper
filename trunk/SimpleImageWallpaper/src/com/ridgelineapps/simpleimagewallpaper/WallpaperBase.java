@@ -17,10 +17,7 @@
 
 package com.ridgelineapps.simpleimagewallpaper;
 
-import android.content.SharedPreferences;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.view.MotionEvent;
 
 public class WallpaperBase {
 
@@ -34,20 +31,10 @@ public class WallpaperBase {
     public int longSide;
     public int shortSide;
     
-    protected long blackoutDuration = 2000;
-    //TODO: don't do blackout around handling tap..
-    protected boolean blackout;
-    protected long blackoutStartTime;
-    protected boolean blackoutOnMove = false;
-    protected boolean allowsBlackout = false;
-    protected Paint blackoutPaint;
-    
-    
     //TODO: user drawPaused instead
     public boolean ready = true;
 
     public WallpaperBase() {
-        blackoutPaint = Utils.createPaint(120, 0, 0, 0);
     }
     
     public void prefsChanged() {
@@ -55,13 +42,6 @@ public class WallpaperBase {
     }
     
     public boolean preDraw() {
-        if (blackout) {
-            if (System.currentTimeMillis() - blackoutStartTime > blackoutDuration) {
-                blackout = false;
-                drawPaused = false;
-            }
-        }
-        
         return !drawPaused && ready;
     }
     
@@ -73,34 +53,6 @@ public class WallpaperBase {
         this.height = height;
         this.longSide = longSide;
         this.shortSide = shortSide;
-
-        SharedPreferences prefs = engine.getPrefs();
-        blackoutOnMove = prefs.getBoolean("darken_on_touch", false);
-        try {
-            String durationStr = prefs.getString("darken_duration", "2");
-            int sec = Integer.parseInt(durationStr);
-            blackoutDuration = sec * 1000;
-        }
-        catch(Exception e) {
-            e.printStackTrace(); 
-        }
-        
-        blackout = false;
-        blackoutStartTime = 0; 
-    }
-
-    public void touched(MotionEvent event) {
-        if(allowsBlackout) {
-            if (blackoutOnMove && event != null) {
-                blackoutStartTime = System.currentTimeMillis();
-    
-                if (!blackout) {
-                    blackout = true;
-                    drawPaused = false;
-                    engine.drawAsap();
-                }
-            }
-        }
     }
 
     public void cleanup() {

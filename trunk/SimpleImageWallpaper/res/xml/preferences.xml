@@ -49,7 +49,7 @@
 		<com.ridgelineapps.simpleimagewallpaper.SelectPortraitImagePreference
 			android:key="image_file_portrait" 
 			android:title=""
-			android:layout="@layout/image_preference" 
+			android:layout="@layout/portrait_image_preference" 
 			android:dependency="portrait_image_set"
 			/>
 
