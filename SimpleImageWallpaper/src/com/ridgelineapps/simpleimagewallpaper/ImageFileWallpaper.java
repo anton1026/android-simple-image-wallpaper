@@ -136,15 +136,6 @@ public class ImageFileWallpaper extends WallpaperBase {
                             
                             canvas.rotate(-270);
                         }
-//                        else if(lastOrientation == Surface.ROTATION_180 && currentOrientation == Surface.ROTATION_90) {
-//                        	rotation = 270;
-//                        }
-//                        else if(lastOrientation == Surface.ROTATION_90 && currentOrientation == Surface.ROTATION_180) {
-//                        	rotation = 270;
-//                        }
-//                        else if(lastOrientation == Surface.ROTATION_270 && currentOrientation == Surface.ROTATION_0) {
-//                        	rotation = 270;
-//                        }
                         else {
                             canvas.rotate(90);
 
