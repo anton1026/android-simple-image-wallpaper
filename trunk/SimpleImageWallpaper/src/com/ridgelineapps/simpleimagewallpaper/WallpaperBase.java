@@ -24,18 +24,9 @@ import android.view.MotionEvent;
 
 public class WallpaperBase {
 
-    // public Paint background;
-    // public boolean drawBackground;
-
     public boolean drawPaused = false;
     public boolean drawnAtLeastOnce = false;
     
-    // protected long lastStep = 0L;
-    // public static int drawInterval = 1000 / 20;
-    // public static int smallStepInterval = drawInterval;
-    // public static int largeStepInterval = 500;
-    // protected int step = 0;
-
     public DelegatingWallpaperService.SimpleWallpaperEngine engine;
     
     public int width;
@@ -52,9 +43,6 @@ public class WallpaperBase {
     protected Paint blackoutPaint;
     
     
-    public int drawInterval = -1;
-//    public boolean firstDraw = true;
-
     //TODO: user drawPaused instead
     public boolean ready = true;
 
@@ -64,10 +52,6 @@ public class WallpaperBase {
     
     public void prefsChanged() {
         
-    }
-    
-    public boolean doubleTap() {
-        return true;
     }
     
     public boolean preDraw() {
@@ -118,26 +102,6 @@ public class WallpaperBase {
             }
         }
     }
-
-    public void randomize() {
-    }
-
-//    public void checkBigStep() {
-//    }
-//
-//    public void checkSmallStep() {
-//    }
-
-    public void step() {
-    }
-
-    // public Paint getBackground() {
-    // if (background == null) {
-    // background = Utils.createPaint(0, 0, 0);
-    // }
-    //
-    // return background;
-    // }
 
     public void cleanup() {
         // TODO: clean up resources like paints?

@@ -52,9 +52,6 @@ public class DelegatingWallpaperService extends WallpaperService {
         int height;
 
         private boolean visible = true;
-//        private boolean touchEnabled = true;
-
-//        boolean firstDraw = true;
 
         public Paint background;
 
@@ -73,8 +70,6 @@ public class DelegatingWallpaperService extends WallpaperService {
         public synchronized void onSharedPreferenceChanged(SharedPreferences shared, String key) {
             //TODO: causes wallpaper to be re-inited() as preferences are tweaked in code, do another way that doesn't require ignore hack here...
             
-            SharedPreferences prefs = getPrefs();
-
             if(wallpaper != null) {
                 wallpaper.prefsChanged();
             }
@@ -107,7 +102,6 @@ public class DelegatingWallpaperService extends WallpaperService {
         }
 
         public void cleanupWallpaper() {
-//        	System.out.println("::cleanup:" + this + ", wp:" + wallpaper);
             if (wallpaper != null) {
                 try {
                     WallpaperBase oldWallpaper = wallpaper;
@@ -121,7 +115,6 @@ public class DelegatingWallpaperService extends WallpaperService {
 
         @SuppressWarnings("rawtypes")
         public synchronized void refreshWallpaper(boolean reload) {
-//        	System.out.println("::refresh:" + this);
         	
             // TODO: how often to get these? is there way to only set them when changed easily?
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -139,24 +132,15 @@ public class DelegatingWallpaperService extends WallpaperService {
             cleanupWallpaper();
 
             if (visible) {
-                Class c = null;
-
-                c = ImageFileWallpaper.class;
-                
-                
-                
                 try {
-                    wallpaper = (WallpaperBase) c.newInstance();
+                    wallpaper = new ImageFileWallpaper();
                     wallpaper.engine = this;
-//                    System.out.println("calling init for:" + wallpaper);
                     wallpaper.init(width, height, longSide, shortSide, true);
 
                 } catch (Exception e) {
                     e.printStackTrace();
                     // TODO: what to do?
                 }
-
-                
                 
                 drawAsap();
             }
@@ -171,10 +155,6 @@ public class DelegatingWallpaperService extends WallpaperService {
                 this.height = height;
                 longSide = Math.max(width, height);
                 shortSide = Math.min(width, height);
-
-//                drawAsap();
-//                firstDraw = true;
-                // TODO: don't refresh, just update
                 refreshWallpaper(false);
             }
         }
@@ -198,28 +178,9 @@ public class DelegatingWallpaperService extends WallpaperService {
 //        }
 
         private void draw() {
-            // if (wallpaper == null && width != 0 && height != 0) {
             SurfaceHolder holder = getSurfaceHolder();
             Canvas canvas = null;
             try {
-                // if (firstDraw) {
-                // firstDraw = false;
-                // try {
-                // canvas = holder.lockCanvas();
-                // if (canvas != null) {
-                // canvas.drawRect(0, 0, width, height, background);
-                // }
-                // } finally {
-                // try {
-                // if (canvas != null) {
-                // holder.unlockCanvasAndPost(canvas);
-                // }
-                // } finally {
-                // canvas = null;
-                // }
-                // }
-                // }
-
                 // TODO: check for "isReady" since we possibly could call the wallpaper before it is inited
                 if (wallpaper == null) {
                     refreshWallpaper(false);
@@ -233,8 +194,6 @@ public class DelegatingWallpaperService extends WallpaperService {
                         if (canvas != null) {
                             wallpaper.draw(canvas);
                         }
-
-                        // wallpaper.touched(null);
                     }
                 }
             } finally {
@@ -242,16 +201,7 @@ public class DelegatingWallpaperService extends WallpaperService {
                     holder.unlockCanvasAndPost(canvas);
                 }
             }
-            // }
             handler.removeCallbacks(drawRunner);
-            if (visible) {
-                if (wallpaper != null && wallpaper.drawInterval >= 0) {
-                    handler.postDelayed(drawRunner, wallpaper.drawInterval);
-                }
-                // else {
-                // handler.postDelayed(drawRunner, 1000);
-                // }
-            }
         }
     }
 }

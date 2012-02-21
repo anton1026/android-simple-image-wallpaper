@@ -39,15 +39,8 @@ public class ImageFileWallpaper extends WallpaperBase {
     
     Paint bitmapPaint;
 
-    // TODO: border in prefs
-
     public ImageFileWallpaper() {
         allowsBlackout = true;
-    }
-    
-    @Override
-    public boolean doubleTap() {
-        return false;
     }
     
     @Override
@@ -82,13 +75,8 @@ public class ImageFileWallpaper extends WallpaperBase {
                 int x = 0;
                 int y = 0;
     
-//                if (!fill) {
-                    x = (width - destWidth) / 2;
-                    y = (height - destHeight) / 2;
-//                } else {
-//                    x = (width - destWidth) / 2;
-//                    y = (height - destHeight) / 2;
-//                }
+                x = (width - destWidth) / 2;
+                y = (height - destHeight) / 2;
     
                 Rect dest = new Rect(x, y, x + destWidth, y + destHeight);
     
@@ -112,18 +100,6 @@ public class ImageFileWallpaper extends WallpaperBase {
                         destWidth = (int) (bmp.getWidth() * scale);
                         destHeight = (int) (bmp.getHeight() * scale);
             
-//                        x = (rWidth - destWidth);// / 2;
-//                        y = (rHeight - destHeight);// / 2;
-//                        System.out.println("*******************x, y: " + x + ", " + y);
-//                        System.out.println("*******************rWidth, rHeight: " + rWidth + ", " + rHeight);
-//                        System.out.println("*******************destWidth, destHeight: " + destWidth + ", " + destHeight);
-//                        
-//                        int centerX = x + destWidth / 2;
-//                        int centerY = y + destHeight / 2;
-                        
-//                        centerX = centerY = 0;
-//                        canvas.rotate(90, centerX, centerY);
-//                      canvas.rotate(90, centerX, centerY);
                         canvas.rotate(90);
 
                         y = -rHeight + ((rHeight - destHeight) / 2);
@@ -132,7 +108,6 @@ public class ImageFileWallpaper extends WallpaperBase {
                         canvas.drawBitmap(bmp, null, dest, bitmapPaint);
                         
                         canvas.rotate(-90);
-//                        canvas.rotate(-90, centerX, centerY);
                     }
                 }
                 
@@ -156,13 +131,6 @@ public class ImageFileWallpaper extends WallpaperBase {
     @Override
     public void init(int width, int height, int longSide, int shortSide, boolean reload) {
         super.init(width, height, longSide, shortSide, reload);
-
-        if(blackoutOnMove) {
-            drawInterval = 250;
-        }
-        else {
-            drawInterval = 0;
-        }
 
         bitmapPaint = new Paint();
         bitmapPaint.setFilterBitmap(true);
