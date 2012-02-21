@@ -143,7 +143,7 @@ public class DelegatingWallpaperService extends WallpaperService {
 
             if (visible) {
                 try {
-                    wallpaper = new ImageFileWallpaper();
+                    wallpaper = new ImageFileWallpaper(DelegatingWallpaperService.this);
                     wallpaper.engine = this;
                     wallpaper.init(width, height, longSide, shortSide, true);
 

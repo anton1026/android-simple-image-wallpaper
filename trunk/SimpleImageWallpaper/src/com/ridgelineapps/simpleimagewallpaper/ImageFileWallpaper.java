@@ -17,13 +17,17 @@
 
 package com.ridgelineapps.simpleimagewallpaper;
 
+import android.app.Service;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.service.wallpaper.WallpaperService;
 import android.util.Log;
+import android.view.Surface;
+import android.view.WindowManager;
 
 public class ImageFileWallpaper extends WallpaperBase {
 
@@ -38,8 +42,15 @@ public class ImageFileWallpaper extends WallpaperBase {
     public boolean rotate = false;
     
     Paint bitmapPaint;
+    
+    WallpaperService service;
+    
+    boolean orientationSet = false;
+    int currentOrientation;
+    int lastOrientation;
 
-    public ImageFileWallpaper() {
+    public ImageFileWallpaper(WallpaperService service) {
+    	this.service = service;
     }
     
     @Override
@@ -54,7 +65,19 @@ public class ImageFileWallpaper extends WallpaperBase {
             } else {
                 bmp = image;
             }
-    
+            
+            int orientationNow = ((WindowManager) service.getApplication().getSystemService(Service.WINDOW_SERVICE)).getDefaultDisplay().getOrientation();
+            if(!orientationSet) {
+            	currentOrientation = orientationNow;
+            	lastOrientation = orientationNow;
+            	orientationSet = true;
+            }
+            
+            if(orientationNow != currentOrientation) {
+            	lastOrientation = currentOrientation;
+            	currentOrientation = orientationNow;
+            }
+            
             if (bmp != null) {
                 // canvas.drawBitmap(bmp, 0, 0, engine.background);
                 float scaleWidth = (float) width / bmp.getWidth();
@@ -99,14 +122,39 @@ public class ImageFileWallpaper extends WallpaperBase {
                         destWidth = (int) (bmp.getWidth() * scale);
                         destHeight = (int) (bmp.getHeight() * scale);
             
-                        canvas.rotate(90);
+                        if((lastOrientation == Surface.ROTATION_0 && currentOrientation == Surface.ROTATION_90) ||
+                           (lastOrientation == Surface.ROTATION_180 && currentOrientation == Surface.ROTATION_270) ||
+                           (lastOrientation == Surface.ROTATION_90 && currentOrientation == Surface.ROTATION_180) ||
+                           (lastOrientation == Surface.ROTATION_270 && currentOrientation == Surface.ROTATION_0)
+                           ) {
+                            canvas.rotate(270);
 
-                        y = -rHeight + ((rHeight - destHeight) / 2);
-                        x = (rWidth - destWidth) / 2;
-                        dest = new Rect(x, y, x + destWidth, y + destHeight);
-                        canvas.drawBitmap(bmp, null, dest, bitmapPaint);
-                        
-                        canvas.rotate(-90);
+                            y = (rHeight - destHeight) / 2;
+                            x = -rWidth + ((rWidth - destWidth) / 2);
+                            dest = new Rect(x, y, x + destWidth, y + destHeight);
+                            canvas.drawBitmap(bmp, null, dest, bitmapPaint);
+                            
+                            canvas.rotate(-270);
+                        }
+//                        else if(lastOrientation == Surface.ROTATION_180 && currentOrientation == Surface.ROTATION_90) {
+//                        	rotation = 270;
+//                        }
+//                        else if(lastOrientation == Surface.ROTATION_90 && currentOrientation == Surface.ROTATION_180) {
+//                        	rotation = 270;
+//                        }
+//                        else if(lastOrientation == Surface.ROTATION_270 && currentOrientation == Surface.ROTATION_0) {
+//                        	rotation = 270;
+//                        }
+                        else {
+                            canvas.rotate(90);
+
+                            y = -rHeight + ((rHeight - destHeight) / 2);
+                            x = (rWidth - destWidth) / 2;
+                            dest = new Rect(x, y, x + destWidth, y + destHeight);
+                            canvas.drawBitmap(bmp, null, dest, bitmapPaint);
+                            
+                            canvas.rotate(-90);
+                        }
                     }
                 }
                 
