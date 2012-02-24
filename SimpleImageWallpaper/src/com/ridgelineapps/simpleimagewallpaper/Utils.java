@@ -65,26 +65,6 @@ public class Utils {
         return COMMON_COLORS[0];
     }
 
-    public static String getPage(String url) {
-        try {
-            HttpClient client = new DefaultHttpClient();
-            HttpGet request = new HttpGet(url);
-            HttpResponse response = client.execute(request);
-            InputStream in = response.getEntity().getContent();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            StringBuilder source = new StringBuilder();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                source.append(line);
-            }
-            in.close();
-            return source.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    
     public static String findValue(String page, String prefix, String suffix) {
         int start = page.indexOf(prefix);
         if (start != -1) {
@@ -130,90 +110,6 @@ public class Utils {
         return choices.get((int) (Math.random() * choices.size()));
     }
 
-    public static String findImgAfter(String page, int at) {
-        String prefix = "<img src=\"";
-        String suffix = "\"";
-        int start = page.indexOf(prefix, at);
-
-        if (start != -1) {
-            start += prefix.length();
-            int end = page.indexOf(suffix, start);
-            if (end != -1) {
-                return page.substring(start, end);
-            }
-        }
-
-        return null;
-    }    
-
-    public static Bitmap downloadBitmap(String url) {
-        try {
-            HttpClient client = new DefaultHttpClient();
-            HttpGet request = new HttpGet(url);
-            HttpResponse response = client.execute(request);
-            InputStream in = response.getEntity().getContent();
-            
-            BitmapFactory.Options options = new BitmapFactory.Options();
-//            options.inPreferQualityOverSpeed = true;
-//            options.inDither = true;
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            //TODO: use scale like we do loading from file
-            
-            Bitmap bitmap = BitmapFactory.decodeStream(in, null, options);
-            in.close();
-            return bitmap;            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-//        final AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
-//        final HttpGet getRequest = new HttpGet(url);
-//        try {
-//            HttpResponse response = client.execute(getRequest);
-//            final int statusCode = response.getStatusLine().getStatusCode();
-//            if (statusCode != HttpStatus.SC_OK) {
-//                return null;
-//            }
-//            final HttpEntity entity = response.getEntity();
-//            if (entity != null) {
-//                InputStream inputStream = null;
-//                try {
-//                    inputStream = entity.getContent();
-//                    final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-//                    return bitmap;
-//                } finally {
-//                    if (inputStream != null) {
-//                        inputStream.close();
-//                    }
-//                    entity.consumeContent();
-//                }
-//            }
-//        } catch (Exception e) {
-//            getRequest.abort();
-//            e.printStackTrace();
-//        } finally {
-//            if (client != null) {
-//                client.close();
-//            }
-//        }
-//        return null;
-    }
-
-    public static Paint copy(Paint paint) {
-        int c = paint.getColor();
-        return Utils.createPaint(Color.alpha(c), Color.red(c), Color.green(c), Color.blue(c));
-    }
-
-    public static Bitmap computeBitmapSizeFromURI(Context context, Uri imageURI) throws FileNotFoundException {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-
-        // BitmapFactory.decodeStream(new FileInputStream(imageURI), null, options);
-        // BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imageURI), null, options);
-        return BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imageURI), null, options);
-    }
-    
-    
     public static Bitmap loadBitmap(Context context, Uri imageURI, int width, int height, boolean fill, boolean rotateIfNecessary) throws FileNotFoundException {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
@@ -276,7 +172,7 @@ public class Utils {
 
         int retries = 0;
         boolean success = false;
-        while(!success && retries < 3) {
+        while(!success) {
             try {
                 // TODO: don't load stream twice?
                 is = context.getContentResolver().openInputStream(imageURI);
@@ -293,7 +189,9 @@ public class Utils {
                 e.printStackTrace();
                 scale *= 2;
                 o2.inSampleSize = scale; 
-                retries++;
+                if(retries++ >= 3) {
+                	throw e;
+                }
             }
             finally
             {
