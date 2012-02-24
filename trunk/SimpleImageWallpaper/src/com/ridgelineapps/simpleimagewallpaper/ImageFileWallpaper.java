@@ -17,6 +17,8 @@
 
 package com.ridgelineapps.simpleimagewallpaper;
 
+import java.io.FileNotFoundException;
+
 import android.app.Service;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -184,8 +186,7 @@ public class ImageFileWallpaper extends WallpaperBase {
                     image = null;
                     image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(fileUri), width, height, fill, rotate);
 
-                } catch (Exception e) {
-                    // TODO: don't try to load again...
+                } catch (FileNotFoundException e) {
                     Log.e("ImageFileWallpaper", "0", e);
                 }
             }
@@ -202,8 +203,7 @@ public class ImageFileWallpaper extends WallpaperBase {
                         imagePortrait = null;
                         imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(fileUriPortrait), width, height, fill, rotate);
 
-                    } catch (Exception e) {
-                        // TODO: don't try to load again...
+                    } catch (FileNotFoundException e) {
                         Log.e("ImageFileWallpaper", "1", e);
                     }
                 }

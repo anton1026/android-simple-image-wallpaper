@@ -142,15 +142,15 @@ public class DelegatingWallpaperService extends WallpaperService {
             cleanupWallpaper();
 
             if (visible) {
-                try {
+//                try {
                     wallpaper = new ImageFileWallpaper(DelegatingWallpaperService.this);
                     wallpaper.engine = this;
                     wallpaper.init(width, height, longSide, shortSide, true);
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    // TODO: what to do?
-                }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    // TODO: what to do?
+//                }
                 
                 drawAsap();
             }
