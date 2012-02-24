@@ -31,9 +31,7 @@ import android.widget.TextView;
 
 public class SelectImagePreference extends Preference {
     ImageView imageView;
-    //TODO: use attr for this
     String prefKey = "full_image_uri";
-    //Bitmap oldBitmap = null;
 
     public SelectImagePreference(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -60,8 +58,6 @@ public class SelectImagePreference extends Preference {
         }
     }
 
-    // TODO: don't do any of this when image screensaver is not the
-    // screensaver...
     void updateBackgroundImage(View view) {
     	if(view != null)
     		updateTextState(view);
@@ -69,30 +65,19 @@ public class SelectImagePreference extends Preference {
             Bitmap bitmap = null;
         	imageView.setImageBitmap(null);
         	
-//        	if(isEnabled()) {
-	            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-	            String imageURIString = prefs.getString(prefKey, null);
-	            if (imageURIString != null) {
-	                Uri imageURI = Uri.parse(imageURIString);
-	                try {
-	                    bitmap = Utils.loadBitmap(getContext(), imageURI, Math.max(128, imageView.getWidth()), Math.max(128, imageView.getHeight()), true, false);
-	    	            if(bitmap != null) {
-	    	            	imageView.setImageBitmap(bitmap);
-//	    	            	if(oldBitmap != null) {
-//	    	            		oldBitmap.recycle();
-//	    	            		oldBitmap = bitmap;
-//	    	            	}
-	    	            }
-	                } catch (Exception e) {
-	                    e.printStackTrace();
-	                }
-	            }
-//        	}
-        	
-//        	if(bitmap == null && oldBitmap != null) {
-//        		oldBitmap.recycle();
-//        		oldBitmap = null;
-//        	}
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            String imageURIString = prefs.getString(prefKey, null);
+            if (imageURIString != null) {
+                Uri imageURI = Uri.parse(imageURIString);
+                try {
+                    bitmap = Utils.loadBitmap(getContext(), imageURI, Math.max(128, imageView.getWidth()), Math.max(128, imageView.getHeight()), true, false);
+    	            if(bitmap != null) {
+    	            	imageView.setImageBitmap(bitmap);
+    	            }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

@@ -61,7 +61,6 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
         sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 
 
-        //TODO: is it the wrong type of preference?  preference screen?
 //        selectImagePref = findPreference("full_image_uri");
 //        selectImagePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 //            public boolean onPreferenceClick(Preference preference) {
