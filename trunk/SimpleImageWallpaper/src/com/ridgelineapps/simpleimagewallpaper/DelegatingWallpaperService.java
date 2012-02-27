@@ -42,7 +42,6 @@ public class DelegatingWallpaperService extends WallpaperService {
             public void run() {
                 draw();
             }
-
         };
         
         int width;
@@ -76,14 +75,7 @@ public class DelegatingWallpaperService extends WallpaperService {
         public void onVisibilityChanged(boolean visible) {
 //        	System.out.println("visibility:" + this.visible + ", " + visible);
             this.visible = visible;
-            if (visible) {
-            	if(wallpaper == null) {
-            		drawAsap();
-            	}
-//                handler.post(drawRunner);
-            } else {
-                handler.removeCallbacks(drawRunner);
-            }
+            drawAsap();
         }
 
         @Override
@@ -119,26 +111,6 @@ public class DelegatingWallpaperService extends WallpaperService {
             }
         }
 
-        public synchronized void refreshWallpaper() {
-        	
-            if (wallpaper != null) {
-                drawAsap();
-            }
-            else {
-	            cleanupWallpaper();
-	
-	            if (visible) {
-	//                try {
-	                    wallpaper = new ImageFileWallpaper(DelegatingWallpaperService.this, this, width, height);
-	//                } catch (Exception e) {
-	//                    e.printStackTrace();
-	//                }
-	                
-	                drawAsap();
-	            }
-            }
-        }
-
         @Override
         public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             super.onSurfaceChanged(holder, format, width, height);
@@ -147,7 +119,7 @@ public class DelegatingWallpaperService extends WallpaperService {
 //            	System.out.println("" + this.width + ", " + this.height + " " + width + ", " + height);
                 this.width = width;
                 this.height = height;
-                refreshWallpaper();
+                drawAsap();
             }
         }
 
@@ -164,7 +136,7 @@ public class DelegatingWallpaperService extends WallpaperService {
             Canvas canvas = null;
             try {
                 if (wallpaper == null) {
-                    refreshWallpaper();
+                    wallpaper = new ImageFileWallpaper(DelegatingWallpaperService.this, this, width, height);
                 }
 
                 if (wallpaper != null) {
