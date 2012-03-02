@@ -44,6 +44,8 @@ public class DelegatingWallpaperService extends WallpaperService {
             }
         };
         
+        int retryDelay = 1;
+        
         int width;
         int height;
 
@@ -138,8 +140,11 @@ public class DelegatingWallpaperService extends WallpaperService {
                 if (wallpaper == null) {
                     wallpaper = new ImageFileWallpaper(DelegatingWallpaperService.this, this, width, height);
                 }
-
-                if (wallpaper != null) {
+                else if(wallpaper.failedToLoad) {
+                	wallpaper.loadImages(width, height);
+                }
+                
+                if (wallpaper != null && visible) {
                     canvas = holder.lockCanvas();
                     if (canvas != null) {
                         wallpaper.draw(canvas);
@@ -151,6 +156,16 @@ public class DelegatingWallpaperService extends WallpaperService {
                 }
             }
             handler.removeCallbacks(drawRunner);
+            
+            if(wallpaper != null)  {
+            	if(wallpaper.failedToLoad) {
+                    handler.postDelayed(drawRunner, retryDelay * 1000L);
+                    retryDelay *= 2;
+            	}
+            	else {
+            		retryDelay = 1;
+            	}
+            }
         }
     }
 }

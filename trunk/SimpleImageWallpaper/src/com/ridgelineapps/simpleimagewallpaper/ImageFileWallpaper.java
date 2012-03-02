@@ -50,6 +50,8 @@ public class ImageFileWallpaper {
     boolean orientationSet = false;
     int currentOrientation;
     int lastOrientation;
+    
+    boolean failedToLoad = false;
 
     public ImageFileWallpaper(WallpaperService service, DelegatingWallpaperService.SimpleWallpaperEngine engine, int width, int height) {
     	this.service = service;
@@ -63,36 +65,10 @@ public class ImageFileWallpaper {
         rotate = prefs.getBoolean("image_file_rotate", false);
         
         fileUri = prefs.getString("full_image_uri", "");
-
-        if (!fileUri.trim().equals("")) {
-            try {
-                // image = Utils.scaledBitmapFromURIWithMinimumSize(engine.getBaseContext(),
-                // Uri.parse(fileUri), width, height, false);
-                image = null;
-                image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(fileUri), width, height, fill, rotate);
-
-            } catch (FileNotFoundException e) {
-                Log.e("ImageFileWallpaper", "0", e);
-            }
-        }
-
         portraitDifferent = prefs.getBoolean("portrait_image_set", false);
+        fileUriPortrait = prefs.getString("portrait_full_image_uri", "");
 
-        if (!portraitDifferent) {
-            imagePortrait = image;
-        } else {
-            fileUriPortrait = prefs.getString("portrait_full_image_uri", "");
-
-            if (!fileUriPortrait.trim().equals("")) {
-                try {
-                    imagePortrait = null;
-                    imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(fileUriPortrait), width, height, fill, rotate);
-
-                } catch (FileNotFoundException e) {
-                    Log.e("ImageFileWallpaper", "1", e);
-                }
-            }
-        }
+        loadImages(width, height);
     }
     
     public void draw(Canvas canvas) {
@@ -195,6 +171,36 @@ public class ImageFileWallpaper {
             }
         } else {
             canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), engine.background);
+        }
+    }
+    
+    public void loadImages(int width, int height) {
+        if (!fileUri.trim().equals("")) {
+            try {
+                // image = Utils.scaledBitmapFromURIWithMinimumSize(engine.getBaseContext(),
+                // Uri.parse(fileUri), width, height, false);
+                image = null;
+                image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(fileUri), width, height, fill, rotate);
+                failedToLoad = false;
+
+            } catch (FileNotFoundException e) {
+                Log.e("ImageFileWallpaper", "0", e);
+                failedToLoad = true;
+            }
+        }
+
+        if (!portraitDifferent) {
+            imagePortrait = image;
+        } else {
+            if (!fileUriPortrait.trim().equals("")) {
+                try {
+                    imagePortrait = null;
+                    imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(fileUriPortrait), width, height, fill, rotate);
+
+                } catch (FileNotFoundException e) {
+                    Log.e("ImageFileWallpaper", "1", e);
+                }
+            }
         }
     }
 
