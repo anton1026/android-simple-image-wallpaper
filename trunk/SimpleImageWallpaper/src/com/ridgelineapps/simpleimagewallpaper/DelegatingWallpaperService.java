@@ -33,14 +33,38 @@ public class DelegatingWallpaperService extends WallpaperService {
     }
 
     public class SimpleWallpaperEngine extends Engine implements SharedPreferences.OnSharedPreferenceChangeListener {
-
-    	WallpaperService service = null;
-    	
         private final Handler handler = new Handler();
         private final Runnable drawRunner = new Runnable() {
             @Override
             public void run() {
-                draw();
+                SurfaceHolder holder = getSurfaceHolder();
+                Canvas canvas = null;
+                try {
+                    if(!wallpaper.imageLoaded) {
+                    	wallpaper.loadImage();
+                    	wallpaper.loadPortraitImage();
+                    }
+                    
+                    if (visible) {
+                        canvas = holder.lockCanvas();
+                        if (canvas != null) {
+                            wallpaper.draw(canvas);
+                        }
+                    }
+                } finally {
+                    if (canvas != null) {
+                        holder.unlockCanvasAndPost(canvas);
+                    }
+                }
+                handler.removeCallbacks(drawRunner);
+                
+            	if(!wallpaper.imageLoaded) {
+                    handler.postDelayed(drawRunner, retryDelay * 1000L);
+                    retryDelay *= 2;
+            	}
+            	else {
+            		retryDelay = 1;
+            	}
             }
         };
         
@@ -49,9 +73,8 @@ public class DelegatingWallpaperService extends WallpaperService {
         int width;
         int height;
 
-        ImageFileWallpaper wallpaper;
-
-        private boolean visible = true;
+        ImageFileWallpaper wallpaper = new ImageFileWallpaper(DelegatingWallpaperService.this, this);
+        private boolean visible = false;
 
         public Paint background;
 
@@ -66,7 +89,7 @@ public class DelegatingWallpaperService extends WallpaperService {
         }
         
         public synchronized void onSharedPreferenceChanged(SharedPreferences shared, String key) {
-            cleanupWallpaper();
+        	wallpaper.prefsChanged();
         }
 
         public SharedPreferences getPrefs() {
@@ -77,7 +100,7 @@ public class DelegatingWallpaperService extends WallpaperService {
         public void onVisibilityChanged(boolean visible) {
 //        	System.out.println("visibility:" + this.visible + ", " + visible);
             this.visible = visible;
-            drawAsap();
+            removeAndPost();
         }
 
         @Override
@@ -85,7 +108,6 @@ public class DelegatingWallpaperService extends WallpaperService {
 //        	System.out.println("Simple Image Wallpaper: onSurfaceDestroyed()");
             super.onSurfaceDestroyed(holder);
             this.visible = false;
-            cleanupWallpaper();
            	handler.removeCallbacks(drawRunner);
         }
         
@@ -94,24 +116,12 @@ public class DelegatingWallpaperService extends WallpaperService {
 //        	System.out.println("Simple Image Wallpaper: onDestroy()");
 			super.onDestroy();
             this.visible = false;
-            cleanupWallpaper();
+           	wallpaper.cleanup();
            	handler.removeCallbacks(drawRunner);
             SharedPreferences prefs = getPrefs();
             if(prefs != null)
             	prefs.unregisterOnSharedPreferenceChangeListener(this);
 		}
-
-		public void cleanupWallpaper() {
-            if (wallpaper != null) {
-                try {
-                    ImageFileWallpaper oldWallpaper = wallpaper;
-                    wallpaper = null;
-                    oldWallpaper.cleanup();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
 
         @Override
         public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -121,50 +131,15 @@ public class DelegatingWallpaperService extends WallpaperService {
 //            	System.out.println("" + this.width + ", " + this.height + " " + width + ", " + height);
                 this.width = width;
                 this.height = height;
-                drawAsap();
+                removeAndPost();
             }
         }
 
-        public void drawAsap() {
+        public void removeAndPost() {
 //        	System.out.println("drawAsap()");
             handler.removeCallbacks(drawRunner);
             if (visible) {
                 handler.post(drawRunner);
-            }
-        }
-
-        private void draw() {
-            SurfaceHolder holder = getSurfaceHolder();
-            Canvas canvas = null;
-            try {
-                if (wallpaper == null) {
-                    wallpaper = new ImageFileWallpaper(DelegatingWallpaperService.this, this, width, height);
-                }
-                else if(wallpaper.failedToLoad) {
-                	wallpaper.loadImages(width, height);
-                }
-                
-                if (wallpaper != null && visible) {
-                    canvas = holder.lockCanvas();
-                    if (canvas != null) {
-                        wallpaper.draw(canvas);
-                    }
-                }
-            } finally {
-                if (canvas != null) {
-                    holder.unlockCanvasAndPost(canvas);
-                }
-            }
-            handler.removeCallbacks(drawRunner);
-            
-            if(wallpaper != null)  {
-            	if(wallpaper.failedToLoad) {
-                    handler.postDelayed(drawRunner, retryDelay * 1000L);
-                    retryDelay *= 2;
-            	}
-            	else {
-            		retryDelay = 1;
-            	}
             }
         }
     }

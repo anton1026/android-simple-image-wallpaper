@@ -27,7 +27,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 
 public class Utils {
-    public static Bitmap loadBitmap(Context context, Uri imageURI, int width, int height, boolean fill, boolean rotateIfNecessary) throws FileNotFoundException {
+    public static Bitmap loadBitmap(Context context, Uri imageURI, int width, int height, boolean rotateIfNecessary) throws FileNotFoundException {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         InputStream is = context.getContentResolver().openInputStream(imageURI);

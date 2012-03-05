@@ -36,18 +36,13 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
     private String selectedImagePath;
     private String filemanagerstring;
     
-    //TODO: reset button -- changes images to [not set]
-//    Preference selectImagePref;
-//    Preference selectPortraitImagePref;
     SelectImagePreference selectImagePref;
     SelectPortraitImagePreference selectPortraitImagePref;
 
-    //todosiw
     public String getWallpaperName() {
         return "ImageFile";
     }
 
-    //todosiw
     public String getSetWallpaperKey() {
         return "set_wallpaper_image";
     }
@@ -61,25 +56,6 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
         sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 
 
-//        selectImagePref = findPreference("full_image_uri");
-//        selectImagePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-//            public boolean onPreferenceClick(Preference preference) {
-//                portrait = false;
-//                selectBackgroundImage();
-//                return true;
-//            }
-//        });
-//        
-//        selectPortraitImagePref = findPreference("portrait_full_image_uri");
-//        selectPortraitImagePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-//            public boolean onPreferenceClick(Preference preference) {
-//                portrait = false;
-//                //TODO: rename all backgrounds to (?)
-//                selectPortraitBackgroundImage();
-//                return true;
-//            }
-//        });
-        
         selectImagePref = (SelectImagePreference) findPreference("image_file");
         selectImagePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
@@ -153,9 +129,6 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
                 }
                 editor.putString(key, finalUri);
                 editor.commit();
-                // CheckBoxPreference useImagePref = (CheckBoxPreference)
-                // findPreference("useBackgroundImage");
-                // useImagePref.setChecked(true);
                 if(requestCode == SELECT_PORTRAIT_IMAGE) {
                     selectPortraitImagePref.updateBackgroundImage(null);
                 } else {
