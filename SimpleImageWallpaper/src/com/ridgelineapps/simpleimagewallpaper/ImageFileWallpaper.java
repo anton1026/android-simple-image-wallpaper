@@ -17,8 +17,6 @@
 
 package com.ridgelineapps.simpleimagewallpaper;
 
-import java.io.FileNotFoundException;
-
 import android.app.Service;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -35,11 +33,11 @@ public class ImageFileWallpaper {
     WallpaperService service;
     DelegatingWallpaperService.SimpleWallpaperEngine engine;
     
-    String fileUri;
+    String currentFileUri = "";
     Bitmap image;
 
     Bitmap imagePortrait;
-    String fileUriPortrait;
+    String currentPortraitFileUri = "";
     public boolean portraitDifferent;
 
     public boolean fill = false;
@@ -51,24 +49,36 @@ public class ImageFileWallpaper {
     int currentOrientation;
     int lastOrientation;
     
-    boolean failedToLoad = false;
+    boolean imageLoaded = false;
 
-    public ImageFileWallpaper(WallpaperService service, DelegatingWallpaperService.SimpleWallpaperEngine engine, int width, int height) {
+    public ImageFileWallpaper(WallpaperService service, DelegatingWallpaperService.SimpleWallpaperEngine engine) {
     	this.service = service;
     	this.engine = engine;
         bitmapPaint = new Paint();
         bitmapPaint.setFilterBitmap(true);
         bitmapPaint.setDither(true);
+    }
+    
+    public void prefsChanged() {
         
         SharedPreferences prefs = engine.getPrefs();
         fill = prefs.getBoolean("image_file_fill_screen", true);
+        boolean oldRotate = rotate;
         rotate = prefs.getBoolean("image_file_rotate", false);
         
-        fileUri = prefs.getString("full_image_uri", "");
+        String fileUri = prefs.getString("full_image_uri", "");
         portraitDifferent = prefs.getBoolean("portrait_image_set", false);
-        fileUriPortrait = prefs.getString("portrait_full_image_uri", "");
-
-        loadImages(width, height);
+        String portraitFileUri = prefs.getString("portrait_full_image_uri", "");
+        
+        if(fileUri != currentFileUri || oldRotate != rotate) {
+        	currentFileUri = fileUri;
+        	loadImage();
+        }
+        
+        if(portraitFileUri != currentPortraitFileUri || oldRotate != rotate) {
+        	currentPortraitFileUri= portraitFileUri;
+        	loadPortraitImage();
+        }
     }
     
     public void draw(Canvas canvas) {
@@ -174,32 +184,37 @@ public class ImageFileWallpaper {
         }
     }
     
-    public void loadImages(int width, int height) {
-        if (!fileUri.trim().equals("")) {
+    public void loadImage() {
+        if (!currentFileUri.trim().equals("")) {
             try {
-                // image = Utils.scaledBitmapFromURIWithMinimumSize(engine.getBaseContext(),
-                // Uri.parse(fileUri), width, height, false);
-                image = null;
-                image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(fileUri), width, height, fill, rotate);
-                failedToLoad = false;
+                image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate);
+                imageLoaded = true;
 
-            } catch (FileNotFoundException e) {
+            } catch (Throwable e) {
                 Log.e("ImageFileWallpaper", "0", e);
-                failedToLoad = true;
             }
         }
-
-        if (!portraitDifferent) {
-            imagePortrait = image;
-        } else {
-            if (!fileUriPortrait.trim().equals("")) {
-                try {
-                    imagePortrait = null;
-                    imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(fileUriPortrait), width, height, fill, rotate);
-
-                } catch (FileNotFoundException e) {
-                    Log.e("ImageFileWallpaper", "1", e);
-                }
+        else {
+            if (image != null && !image.isRecycled()) {
+                image.recycle();
+                image = null;
+            }
+        	imageLoaded = true;
+        }
+    }
+    
+    public void loadPortraitImage() {
+        if (!currentPortraitFileUri.trim().equals("")) {
+            try {
+                imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate);
+            } catch (Throwable e) {
+                Log.e("ImageFileWallpaper", "1", e);
+            }
+        }
+        else {
+            if (imagePortrait != null && !imagePortrait.isRecycled()) {
+                imagePortrait.recycle();
+                imagePortrait = null;
             }
         }
     }
@@ -213,9 +228,12 @@ public class ImageFileWallpaper {
             imagePortrait.recycle();
         }
         
+        currentPortraitFileUri = "";
+        currentFileUri = "";
         image = null;
         imagePortrait = null;
         engine = null;
         service = null;
+        imageLoaded = false;
     }
 }
