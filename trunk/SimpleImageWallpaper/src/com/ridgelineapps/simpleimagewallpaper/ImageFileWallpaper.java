@@ -185,6 +185,7 @@ public class ImageFileWallpaper {
     }
     
     public void loadImage() {
+//        System.out.println("loadImage");
         if (!currentFileUri.trim().equals("")) {
             try {
                 image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate);
