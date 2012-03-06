@@ -80,8 +80,7 @@ public class DelegatingWallpaperService extends WallpaperService {
 
         public SimpleWallpaperEngine() {
             background = Utils.createPaint(0, 0, 0);
-            SharedPreferences prefs = getPrefs();
-            prefs.registerOnSharedPreferenceChangeListener(this);
+            getPrefs().registerOnSharedPreferenceChangeListener(this);
         }
 
         public Context getBaseContext() {
@@ -114,25 +113,24 @@ public class DelegatingWallpaperService extends WallpaperService {
         @Override
 		public void onDestroy() {
 //        	System.out.println("Simple Image Wallpaper: onDestroy()");
-			super.onDestroy();
-            this.visible = false;
+            visible = false;
            	wallpaper.cleanup();
            	handler.removeCallbacks(drawRunner);
-            SharedPreferences prefs = getPrefs();
-            if(prefs != null)
-            	prefs.unregisterOnSharedPreferenceChangeListener(this);
+            if(getPrefs() != null)
+                getPrefs().unregisterOnSharedPreferenceChangeListener(this);
+            super.onDestroy();
 		}
 
         @Override
         public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             super.onSurfaceChanged(holder, format, width, height);
 
-            if (width > 0 && height > 0 && width != this.width || height != this.height) {
+//            if (width > 0 && height > 0 && width != this.width || height != this.height) {
 //            	System.out.println("" + this.width + ", " + this.height + " " + width + ", " + height);
                 this.width = width;
                 this.height = height;
                 removeAndPost();
-            }
+//            }
         }
 
         public void removeAndPost() {
