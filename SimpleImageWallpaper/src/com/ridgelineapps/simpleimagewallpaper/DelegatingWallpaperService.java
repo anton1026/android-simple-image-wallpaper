@@ -41,10 +41,10 @@ public class DelegatingWallpaperService extends WallpaperService {
                 Canvas canvas = null;
                 try {
                     if(!wallpaper.imageLoaded) {
+                        wallpaper.prefsChanged();
                     	wallpaper.loadImage();
                     	wallpaper.loadPortraitImage();
                     }
-                    
                     if (visible) {
                         canvas = holder.lockCanvas();
                         if (canvas != null) {
@@ -97,7 +97,7 @@ public class DelegatingWallpaperService extends WallpaperService {
 
         @Override
         public void onVisibilityChanged(boolean visible) {
-//        	System.out.println("visibility:" + this.visible + ", " + visible);
+//        	System.out.println("Simple Image Wallpaper: onVisibilityChanged():" + visible);
             this.visible = visible;
             removeAndPost();
         }
@@ -126,7 +126,6 @@ public class DelegatingWallpaperService extends WallpaperService {
             super.onSurfaceChanged(holder, format, width, height);
 
 //            if (width > 0 && height > 0 && width != this.width || height != this.height) {
-//            	System.out.println("" + this.width + ", " + this.height + " " + width + ", " + height);
                 this.width = width;
                 this.height = height;
                 removeAndPost();
@@ -134,7 +133,6 @@ public class DelegatingWallpaperService extends WallpaperService {
         }
 
         public void removeAndPost() {
-//        	System.out.println("drawAsap()");
             handler.removeCallbacks(drawRunner);
             if (visible) {
                 handler.post(drawRunner);

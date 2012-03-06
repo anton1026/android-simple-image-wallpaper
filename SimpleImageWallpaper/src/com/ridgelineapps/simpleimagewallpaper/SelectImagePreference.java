@@ -67,7 +67,7 @@ public class SelectImagePreference extends Preference {
         	
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             String imageURIString = prefs.getString(prefKey, null);
-            if (imageURIString != null) {
+            if (imageURIString != null && !imageURIString.trim().equals("")) {
                 Uri imageURI = Uri.parse(imageURIString);
                 try {
                     bitmap = Utils.loadBitmap(getContext(), imageURI, Math.max(128, imageView.getWidth()), Math.max(128, imageView.getHeight()), false);
