@@ -26,11 +26,17 @@
                 android:summary="Image will be cropped as necessary to fill the screen both horizontally and vertically" />
                 
         <CheckBoxPreference
+                android:key="image_file_hide_if_locked"
+                android:title="Hide when device is locked"
+                android:defaultValue="false"
+               android:summary="Show a blank background when the device is displaying the lock screen" />
+               
+        <CheckBoxPreference
                 android:key="image_file_rotate"
                 android:title="Rotate for best fit"
                 android:defaultValue="false"
                android:summary="Automatically rotate the image so the long side of the image lines up with the long side of the screen" />
-               
+        
 <!-- 
 		<PreferenceScreen 
 			android:key="full_image_uri" android:title="Image"
