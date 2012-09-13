@@ -68,6 +68,8 @@ public class ImageFileWallpaper {
         boolean oldRotate = rotate;
         rotate = prefs.getBoolean("image_file_rotate", false);
         
+        engine.hideWhenScreenIsLocked = prefs.getBoolean("image_file_hide_if_locked", false);
+        
         String fileUri = prefs.getString("full_image_uri", "");
         portraitDifferent = prefs.getBoolean("portrait_image_set", false);
         String portraitFileUri = prefs.getString("portrait_full_image_uri", "");
