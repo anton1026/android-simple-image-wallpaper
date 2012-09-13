@@ -17,7 +17,11 @@
 
 package com.ridgelineapps.simpleimagewallpaper;
 
+import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -27,16 +31,28 @@ import android.service.wallpaper.WallpaperService;
 import android.view.SurfaceHolder;
 
 public class DelegatingWallpaperService extends WallpaperService {
+    public static final boolean debug = false;
+    
+    
     @Override
     public Engine onCreateEngine() {
         return new SimpleWallpaperEngine();
     }
 
     public class SimpleWallpaperEngine extends Engine implements SharedPreferences.OnSharedPreferenceChangeListener {
+        boolean postAgain = false;
         private final Handler handler = new Handler();
         private final Runnable drawRunner = new Runnable() {
             @Override
             public void run() {
+                
+                if(hideWhenScreenIsLocked) {
+                    KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+                    screenLocked = keyguardManager.inKeyguardRestrictedInputMode();
+                    if(debug)
+                        System.out.println("Simple Image Wallpaper: locked == " + screenLocked);
+                }
+                
                 SurfaceHolder holder = getSurfaceHolder();
                 Canvas canvas = null;
                 try {
@@ -58,8 +74,9 @@ public class DelegatingWallpaperService extends WallpaperService {
                 }
                 handler.removeCallbacks(drawRunner);
                 
-            	if(!wallpaper.imageLoaded) {
-                    handler.postDelayed(drawRunner, retryDelay * 1000L);
+            	if(!wallpaper.imageLoaded || postAgain) {
+            	    postAgain = false;
+                    handler.postDelayed(drawRunner, retryDelay * 100L);
                     retryDelay *= 2;
             	}
             	else {
@@ -69,6 +86,9 @@ public class DelegatingWallpaperService extends WallpaperService {
         };
         
         int retryDelay = 1;
+
+        boolean hideWhenScreenIsLocked = true;
+        boolean screenLocked = false;
         
         int width;
         int height;
@@ -81,6 +101,17 @@ public class DelegatingWallpaperService extends WallpaperService {
         public SimpleWallpaperEngine() {
             background = Utils.createPaint(0, 0, 0);
             getPrefs().registerOnSharedPreferenceChangeListener(this);
+        }
+
+        @Override
+        public void onCreate(SurfaceHolder surfaceHolder) {
+            super.onCreate(surfaceHolder);
+            
+            IntentFilter filter = new IntentFilter(Intent.ACTION_USER_PRESENT);
+            filter.addAction(Intent.ACTION_SCREEN_OFF);
+            filter.addAction(Intent.ACTION_SCREEN_ON);
+            BroadcastReceiver mReceiver = new ScreenReceiver();
+            registerReceiver(mReceiver, filter);        
         }
 
         public Context getBaseContext() {
@@ -97,14 +128,23 @@ public class DelegatingWallpaperService extends WallpaperService {
 
         @Override
         public void onVisibilityChanged(boolean visible) {
-//        	System.out.println("Simple Image Wallpaper: onVisibilityChanged():" + visible);
+            if(debug)
+                System.out.println("Simple Image Wallpaper: onVisibilityChanged():" + visible);
+            
+//            if(((PowerManager) getSystemService(Context.POWER_SERVICE)).isScreenOn()) {
+//                if(debug)
+//                    System.out.println("Simple Image Wallpaper: screenOn == true");                
+//            }
+            
+            super.onVisibilityChanged(visible);
             this.visible = visible;
             removeAndPost();
         }
 
         @Override
         public void onSurfaceDestroyed(SurfaceHolder holder) {
-//        	System.out.println("Simple Image Wallpaper: onSurfaceDestroyed()");
+            if(debug)
+                System.out.println("Simple Image Wallpaper: onSurfaceDestroyed()");
             super.onSurfaceDestroyed(holder);
             this.visible = false;
            	handler.removeCallbacks(drawRunner);
@@ -112,7 +152,8 @@ public class DelegatingWallpaperService extends WallpaperService {
         
         @Override
 		public void onDestroy() {
-//        	System.out.println("Simple Image Wallpaper: onDestroy()");
+            if(debug)
+                System.out.println("Simple Image Wallpaper: onDestroy()");
             visible = false;
            	wallpaper.cleanup();
            	handler.removeCallbacks(drawRunner);
@@ -122,8 +163,17 @@ public class DelegatingWallpaperService extends WallpaperService {
 		}
 
         @Override
+        public void onDesiredSizeChanged(int desiredWidth, int desiredHeight) {
+            super.onDesiredSizeChanged(desiredWidth, desiredHeight);
+            if(debug)
+                System.out.println("Simple Image Wallpaper: onDesiredSizeChanged, width:" + desiredWidth + " height:" + desiredHeight);
+        }
+        
+        @Override
         public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             super.onSurfaceChanged(holder, format, width, height);
+            if(debug)
+                System.out.println("Simple Image Wallpaper: onSurfaceChanged, width:" + width + " height:" + height);
 
 //            if (width > 0 && height > 0 && width != this.width || height != this.height) {
                 this.width = width;
@@ -138,5 +188,26 @@ public class DelegatingWallpaperService extends WallpaperService {
                 handler.post(drawRunner);
             }
         }
+        
+        public class ScreenReceiver extends BroadcastReceiver {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                    if(debug)
+                        System.out.println("Simple Image Wallpaper: screen off");
+                    removeAndPost();
+                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    if(debug)
+                        System.out.println("Simple Image Wallpaper: screen on");
+                    removeAndPost();
+                } else 
+                if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
+                    if(debug)
+                        System.out.println("Simple Image Wallpaper: user present");
+                    removeAndPost();
+                }
+            }
+        }
+        
     }
 }

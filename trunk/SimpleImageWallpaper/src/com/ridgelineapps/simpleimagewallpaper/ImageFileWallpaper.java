@@ -30,6 +30,8 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 public class ImageFileWallpaper {
+    public static final boolean debug = false;
+
     WallpaperService service;
     DelegatingWallpaperService.SimpleWallpaperEngine engine;
     
@@ -82,7 +84,14 @@ public class ImageFileWallpaper {
     }
     
     public void draw(Canvas canvas) {
-//    	System.out.println("draw called");
+        if(debug)
+            System.out.println("Simple Image Wallpaper draw, width:" + canvas.getWidth() + " height:" + canvas.getHeight());
+        
+        if(canvas.getWidth() != engine.width || canvas.getHeight() != engine.height) {
+            engine.postAgain = true;
+            return;
+        }
+        
         Bitmap bmp;
         int width = canvas.getWidth();
         int height = canvas.getHeight();
@@ -105,7 +114,9 @@ public class ImageFileWallpaper {
         	currentOrientation = orientationNow;
         }
         
-        if (bmp != null) {
+        if(debug)
+            System.out.println("locked:" + engine.screenLocked + ", hide:" + engine.hideWhenScreenIsLocked);
+        if (bmp != null && (!engine.screenLocked || !engine.hideWhenScreenIsLocked)) {
             // canvas.drawBitmap(bmp, 0, 0, engine.background);
             float scaleWidth = (float) width / bmp.getWidth();
             float scaleHeight = (float) height / bmp.getHeight();
