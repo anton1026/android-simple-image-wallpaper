@@ -27,7 +27,7 @@
                 
         <CheckBoxPreference
                 android:key="image_file_hide_if_locked"
-                android:title="Hide when device is locked"
+                android:title="Hide when locked"
                 android:defaultValue="false"
                android:summary="Show a blank background when the device is displaying the lock screen" />
                
