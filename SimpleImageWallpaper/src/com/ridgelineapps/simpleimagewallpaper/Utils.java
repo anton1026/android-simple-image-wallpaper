@@ -27,9 +27,15 @@ import android.graphics.Paint;
 import android.net.Uri;
 
 public class Utils {
-    public static Bitmap loadBitmap(Context context, Uri imageURI, int width, int height, boolean rotateIfNecessary, float quality) throws FileNotFoundException {
+    public static Bitmap loadBitmap(Context context, Uri imageURI, int width, int height, boolean rotateIfNecessary, Integer density, float quality) throws FileNotFoundException {
+       System.gc();
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
+        if(density != null) {
+           // ?
+           o.inScreenDensity = density;
+           o.inTargetDensity = density;
+        }
         InputStream is = context.getContentResolver().openInputStream(imageURI);
         Bitmap bmp = BitmapFactory.decodeStream(is, null, o);
         try {
@@ -101,21 +107,29 @@ public class Utils {
         BitmapFactory.Options o2 = new BitmapFactory.Options();
         o2.inSampleSize = scale;
 //        o2.inPreferQualityOverSpeed = true;
-        o2.inPurgeable = true;
-        o2.inInputShareable = false;
+//        o2.inPurgeable = true;
+//        o2.inInputShareable = false;
+        if(density != null) {
+           // ?
+           o2.inScreenDensity = density;
+           o2.inTargetDensity = density;
+        }
 
         int retries = 0;
         boolean success = false;
         while(!success) {
             try {
                try {
-                  if (bmp != null)
+                  if (bmp != null && !bmp.isRecycled()) {
                      bmp.recycle();
+                     bmp = null;
+                  }
                } catch (Exception e) {
                   // TODO: put all in logs
                   e.printStackTrace();
                }
                
+               System.gc();
                 // TODO: don't load stream twice?
                 is = context.getContentResolver().openInputStream(imageURI);
                 
