@@ -28,6 +28,7 @@ import android.graphics.Paint;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.service.wallpaper.WallpaperService;
+import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
 
 public class DelegatingWallpaperService extends WallpaperService {
@@ -58,8 +59,8 @@ public class DelegatingWallpaperService extends WallpaperService {
                 try {
                     if(!wallpaper.imageLoaded) {
                         wallpaper.prefsChanged();
-                    	wallpaper.loadImage();
-                    	wallpaper.loadPortraitImage();
+                    	wallpaper.loadImage(density);
+                    	wallpaper.loadPortraitImage(density);
                     }
                     if (visible) {
                         canvas = holder.lockCanvas();
@@ -92,13 +93,23 @@ public class DelegatingWallpaperService extends WallpaperService {
         
         int width;
         int height;
+        Integer density;
 
-        ImageFileWallpaper wallpaper = new ImageFileWallpaper(DelegatingWallpaperService.this, this);
+        ImageFileWallpaper wallpaper;
         private boolean visible = false;
 
         public Paint background;
 
         public SimpleWallpaperEngine() {
+           try {
+              DisplayMetrics metrics = DelegatingWallpaperService.this.getBaseContext().getResources().getDisplayMetrics();
+              density = metrics.densityDpi;
+           }
+           catch(Exception e) {
+              e.printStackTrace();
+           }
+           
+            wallpaper = new ImageFileWallpaper(DelegatingWallpaperService.this, this, density);
             background = Utils.createPaint(0, 0, 0);
             getPrefs().registerOnSharedPreferenceChangeListener(this);
         }

@@ -55,12 +55,15 @@ public class ImageFileWallpaper {
     
     boolean imageLoaded = false;
 
-    public ImageFileWallpaper(WallpaperService service, DelegatingWallpaperService.SimpleWallpaperEngine engine) {
+    Integer density = null;
+    
+    public ImageFileWallpaper(WallpaperService service, DelegatingWallpaperService.SimpleWallpaperEngine engine, Integer density) {
     	this.service = service;
     	this.engine = engine;
         bitmapPaint = new Paint();
         bitmapPaint.setFilterBitmap(true);
         bitmapPaint.setDither(true);
+        this.density = density;
     }
     
     public void prefsChanged() {
@@ -74,7 +77,10 @@ public class ImageFileWallpaper {
         
         int qualityPref = 10;
         try {
-           qualityPref = Integer.parseInt(prefs.getString("quality", "10"));
+           String qualityStr = prefs.getString("quality", "10");
+           if(qualityStr != null) {
+              qualityPref = Integer.parseInt(qualityStr);
+           }
          } catch (NumberFormatException e) {
             e.printStackTrace();
         }        
@@ -86,12 +92,12 @@ public class ImageFileWallpaper {
         
         if(fileUri != currentFileUri || oldRotate != rotate) {
         	currentFileUri = fileUri;
-        	loadImage();
+        	loadImage(density);
         }
         
         if(portraitFileUri != currentPortraitFileUri || oldRotate != rotate) {
         	currentPortraitFileUri= portraitFileUri;
-        	loadPortraitImage();
+        	loadPortraitImage(density);
         }
     }
     
@@ -207,40 +213,44 @@ public class ImageFileWallpaper {
         }
     }
     
-    public void loadImage() {
+    public void loadImage(Integer density) {
 //        System.out.println("loadImage");
-        if (!currentFileUri.trim().equals("")) {
-            try {
-                image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, quality);
-                imageLoaded = true;
+       try {
+          if (image != null && !image.isRecycled()) {
+             image.recycle();
+             image = null;
+         }
+       } catch(Exception e) {
+          e.printStackTrace();
+       }
+     if (!currentFileUri.trim().equals("")) {
+         try {
+             image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality);
+             imageLoaded = true;
 
-            } catch (Throwable e) {
-                Log.e("ImageFileWallpaper", "0", e);
-            }
-        }
-        else {
-            if (image != null && !image.isRecycled()) {
-                image.recycle();
-                image = null;
-            }
-        	imageLoaded = true;
-        }
+         } catch (Throwable e) {
+             Log.e("ImageFileWallpaper", "0", e);
+         }
+     }
+     imageLoaded = true;
     }
     
-    public void loadPortraitImage() {
-        if (!currentPortraitFileUri.trim().equals("")) {
-            try {
-                imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, quality);
-            } catch (Throwable e) {
-                Log.e("ImageFileWallpaper", "1", e);
-            }
-        }
-        else {
-            if (imagePortrait != null && !imagePortrait.isRecycled()) {
-                imagePortrait.recycle();
-                imagePortrait = null;
-            }
-        }
+    public void loadPortraitImage(Integer density) {
+       try {
+          if (imagePortrait != null && !imagePortrait.isRecycled()) {
+             imagePortrait.recycle();
+             imagePortrait = null;
+         }
+       } catch(Exception e) {
+          e.printStackTrace();
+       }
+     if (!currentPortraitFileUri.trim().equals("")) {
+         try {
+             imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality);
+         } catch (Throwable e) {
+             Log.e("ImageFileWallpaper", "1", e);
+         }
+     }
     }
 
     public void cleanup() {

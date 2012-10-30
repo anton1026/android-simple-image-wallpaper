@@ -32,6 +32,7 @@ import android.widget.TextView;
 public class SelectImagePreference extends Preference {
     ImageView imageView;
     String prefKey = "full_image_uri";
+    Bitmap bitmap;
 
     public SelectImagePreference(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -62,15 +63,26 @@ public class SelectImagePreference extends Preference {
     	if(view != null)
     		updateTextState(view);
         if (imageView != null) {
-            Bitmap bitmap = null;
-        	imageView.setImageBitmap(null);
+           imageView.setImageBitmap(null);
         	
+           try {
+              if (bitmap != null && !bitmap.isRecycled()) {
+                 bitmap.recycle();
+                 bitmap = null;
+              }
+           } catch (Exception e) {
+              // TODO: put all in logs
+              e.printStackTrace();
+           }
+           
+           
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             String imageURIString = prefs.getString(prefKey, null);
             if (imageURIString != null && !imageURIString.trim().equals("")) {
                 Uri imageURI = Uri.parse(imageURIString);
                 try {
-                    bitmap = Utils.loadBitmap(getContext(), imageURI, Math.max(128, imageView.getWidth()), Math.max(128, imageView.getHeight()), false, 1.0f);
+                   System.gc();
+                    bitmap = Utils.loadBitmap(getContext(), imageURI, Math.max(128, imageView.getWidth()), Math.max(128, imageView.getHeight()), false, null, 1.0f);
     	            if(bitmap != null) {
     	            	imageView.setImageBitmap(bitmap);
     	            }
