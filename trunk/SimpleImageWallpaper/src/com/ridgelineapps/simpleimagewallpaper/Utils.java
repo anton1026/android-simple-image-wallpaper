@@ -27,7 +27,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 
 public class Utils {
-    public static Bitmap loadBitmap(Context context, Uri imageURI, int width, int height, boolean rotateIfNecessary) throws FileNotFoundException {
+    public static Bitmap loadBitmap(Context context, Uri imageURI, int width, int height, boolean rotateIfNecessary, float quality) throws FileNotFoundException {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         InputStream is = context.getContentResolver().openInputStream(imageURI);
@@ -43,9 +43,9 @@ public class Utils {
         int imageHeight = o.outHeight;
         
         int longSide = Math.max(width, height);
-    	int imageLongSide = Math.max(o.outWidth, o.outHeight);
+        int imageLongSide = Math.max(o.outWidth, o.outHeight);
         int shortSide = Math.min(width, height);
-        int imageShortSide = o.outHeight;
+        int imageShortSide = Math.min(o.outWidth, o.outHeight);
          
         int scale=1;
         // Option 1
@@ -53,32 +53,49 @@ public class Utils {
 //            scale = (int) Math.pow(2, (int) Math.round(Math.log(longSide / (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
 //        }
         // Option 2
-        while(true) {
-        	if(rotateIfNecessary) {
-	        	if(imageLongSide / 2 < longSide) {
-	        		break;
-	        	}
-	        	
-	        	if(imageShortSide / 2 < shortSide) {
-	        		break;
-	        	}
-        	}
-        	else {
-	        	if(imageWidth / 2 < width) {
-	        		break;
-	        	}
-	        	
-	        	if(imageHeight / 2 < height) {
-	        		break;
-	        	}
-        	}
-
-        	imageLongSide /= 2;
-        	imageShortSide /= 2;
-        	imageWidth /= 2;
-        	imageHeight /= 2;
-            scale *= 2;
+//        while(true) {
+//        	if(rotateIfNecessary) {
+//	        	if(imageLongSide / 2 < longSide) {
+//	        		break;
+//	        	}
+//	        	
+//	        	if(imageShortSide / 2 < shortSide) {
+//	        		break;
+//	        	}
+//        	}
+//        	else {
+//	        	if(imageWidth / 2 < width) {
+//	        		break;
+//	        	}
+//	        	
+//	        	if(imageHeight / 2 < height) {
+//	        		break;
+//	        	}
+//        	}
+//
+//        	imageLongSide /= 2;
+//        	imageShortSide /= 2;
+//        	imageWidth /= 2;
+//        	imageHeight /= 2;
+//            scale *= 2;
+//        }
+        // Option 3
+        if(rotateIfNecessary) {
+          if (imageLongSide > imageShortSide) {
+              scale = Math.round((float) imageShortSide / (float) shortSide);
+          } else {
+              scale = Math.round((float) imageLongSide / (float) longSide);
+          }           
         }
+        else {
+           if (imageWidth > imageHeight) {
+              scale = Math.round((float) imageHeight / (float) height);
+          } else {
+              scale = Math.round((float) imageWidth / (float) width);
+          }
+        }
+        
+        scale *= quality;
 
         // Decode with inSampleSize
         BitmapFactory.Options o2 = new BitmapFactory.Options();
@@ -91,11 +108,16 @@ public class Utils {
         boolean success = false;
         while(!success) {
             try {
+               try {
+                  if (bmp != null)
+                     bmp.recycle();
+               } catch (Exception e) {
+                  // TODO: put all in logs
+                  e.printStackTrace();
+               }
+               
                 // TODO: don't load stream twice?
                 is = context.getContentResolver().openInputStream(imageURI);
-        //        if(bmp != null) {
-        //        	bmp.recycle();
-        //        }
                 
         //        System.out.println("s:" + scale + " o:" + o.outWidth + ", " + o.outHeight + " **************************** decoding:" + imageURI);
                 
