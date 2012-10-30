@@ -68,6 +68,16 @@
 			android:summary="[not set]">
 		</PreferenceScreen>
 			 -->
+			 
+			 
+	<EditTextPreference
+        android:defaultValue="10"
+        android:enabled="true"
+        android:numeric="integer"
+        android:key="quality"
+        android:summary="Tradeoff between quality and memory, with 10 being the highest quality and 1 being the lowest memory"
+        android:title="Quality" />
+
 
 	<PreferenceScreen android:title="Donate" android:summary="If you like this app and want to contribute, tap here to visit the market page for the donation version.">
 		<intent android:action="android.intent.action.VIEW"

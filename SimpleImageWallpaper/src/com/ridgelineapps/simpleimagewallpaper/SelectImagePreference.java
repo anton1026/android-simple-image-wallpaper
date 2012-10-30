@@ -70,7 +70,7 @@ public class SelectImagePreference extends Preference {
             if (imageURIString != null && !imageURIString.trim().equals("")) {
                 Uri imageURI = Uri.parse(imageURIString);
                 try {
-                    bitmap = Utils.loadBitmap(getContext(), imageURI, Math.max(128, imageView.getWidth()), Math.max(128, imageView.getHeight()), false);
+                    bitmap = Utils.loadBitmap(getContext(), imageURI, Math.max(128, imageView.getWidth()), Math.max(128, imageView.getHeight()), false, 1.0f);
     	            if(bitmap != null) {
     	            	imageView.setImageBitmap(bitmap);
     	            }

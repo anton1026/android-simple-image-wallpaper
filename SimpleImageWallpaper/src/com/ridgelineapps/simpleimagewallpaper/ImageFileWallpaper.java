@@ -51,6 +51,8 @@ public class ImageFileWallpaper {
     int currentOrientation;
     int lastOrientation;
     
+    float quality = 1.0f;
+    
     boolean imageLoaded = false;
 
     public ImageFileWallpaper(WallpaperService service, DelegatingWallpaperService.SimpleWallpaperEngine engine) {
@@ -69,6 +71,14 @@ public class ImageFileWallpaper {
         rotate = prefs.getBoolean("image_file_rotate", false);
         
         engine.hideWhenScreenIsLocked = prefs.getBoolean("image_file_hide_if_locked", false);
+        
+        int qualityPref = 10;
+        try {
+           qualityPref = Integer.parseInt(prefs.getString("quality", "10"));
+         } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }        
+        quality = 0.1f * qualityPref;
         
         String fileUri = prefs.getString("full_image_uri", "");
         portraitDifferent = prefs.getBoolean("portrait_image_set", false);
@@ -201,7 +211,7 @@ public class ImageFileWallpaper {
 //        System.out.println("loadImage");
         if (!currentFileUri.trim().equals("")) {
             try {
-                image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate);
+                image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, quality);
                 imageLoaded = true;
 
             } catch (Throwable e) {
@@ -220,7 +230,7 @@ public class ImageFileWallpaper {
     public void loadPortraitImage() {
         if (!currentPortraitFileUri.trim().equals("")) {
             try {
-                imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate);
+                imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, quality);
             } catch (Throwable e) {
                 Log.e("ImageFileWallpaper", "1", e);
             }
