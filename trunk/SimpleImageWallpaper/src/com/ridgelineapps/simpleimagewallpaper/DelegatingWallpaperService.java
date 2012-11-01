@@ -59,8 +59,8 @@ public class DelegatingWallpaperService extends WallpaperService {
                 try {
                     if(!wallpaper.imageLoaded) {
                         wallpaper.prefsChanged();
-                    	wallpaper.loadImage(density);
-                    	wallpaper.loadPortraitImage(density);
+                    	wallpaper.loadImage();
+                    	wallpaper.loadPortraitImage();
                     }
                     if (visible) {
                         canvas = holder.lockCanvas();
@@ -93,7 +93,6 @@ public class DelegatingWallpaperService extends WallpaperService {
         
         int width;
         int height;
-        Integer density;
 
         ImageFileWallpaper wallpaper;
         private boolean visible = false;
@@ -101,15 +100,7 @@ public class DelegatingWallpaperService extends WallpaperService {
         public Paint background;
 
         public SimpleWallpaperEngine() {
-           try {
-              DisplayMetrics metrics = DelegatingWallpaperService.this.getBaseContext().getResources().getDisplayMetrics();
-              density = metrics.densityDpi;
-           }
-           catch(Exception e) {
-              e.printStackTrace();
-           }
-           
-            wallpaper = new ImageFileWallpaper(DelegatingWallpaperService.this, this, density);
+            wallpaper = new ImageFileWallpaper(DelegatingWallpaperService.this, this);
             background = Utils.createPaint(0, 0, 0);
             getPrefs().registerOnSharedPreferenceChangeListener(this);
         }

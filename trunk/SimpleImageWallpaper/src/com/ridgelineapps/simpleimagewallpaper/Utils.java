@@ -101,11 +101,12 @@ public class Utils {
           }
         }
         
-        scale *= quality;
+//        scale *= quality;
 
         // Decode with inSampleSize
         BitmapFactory.Options o2 = new BitmapFactory.Options();
         o2.inSampleSize = scale;
+        o2.inDither = true;
 //        o2.inPreferQualityOverSpeed = true;
 //        o2.inPurgeable = true;
 //        o2.inInputShareable = false;
