@@ -62,8 +62,8 @@ public class ImageFileWallpaper {
     	this.service = service;
     	this.engine = engine;
         bitmapPaint = new Paint();
-//        bitmapPaint.setFilterBitmap(true);
-//        bitmapPaint.setDither(true);
+        bitmapPaint.setFilterBitmap(true);
+        bitmapPaint.setDither(true);
         
         try {
            DisplayMetrics metrics = service.getBaseContext().getResources().getDisplayMetrics();
