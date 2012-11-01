@@ -25,6 +25,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.service.wallpaper.WallpaperService;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -57,13 +58,20 @@ public class ImageFileWallpaper {
 
     Integer density = null;
     
-    public ImageFileWallpaper(WallpaperService service, DelegatingWallpaperService.SimpleWallpaperEngine engine, Integer density) {
+    public ImageFileWallpaper(WallpaperService service, DelegatingWallpaperService.SimpleWallpaperEngine engine) {
     	this.service = service;
     	this.engine = engine;
         bitmapPaint = new Paint();
-        bitmapPaint.setFilterBitmap(true);
-        bitmapPaint.setDither(true);
-        this.density = density;
+//        bitmapPaint.setFilterBitmap(true);
+//        bitmapPaint.setDither(true);
+        
+        try {
+           DisplayMetrics metrics = service.getBaseContext().getResources().getDisplayMetrics();
+           density = metrics.densityDpi;
+        }
+        catch(Exception e) {
+           e.printStackTrace();
+        }
     }
     
     public void prefsChanged() {
@@ -75,16 +83,16 @@ public class ImageFileWallpaper {
         
         engine.hideWhenScreenIsLocked = prefs.getBoolean("image_file_hide_if_locked", false);
         
-        int qualityPref = 10;
-        try {
-           String qualityStr = prefs.getString("quality", "10");
-           if(qualityStr != null) {
-              qualityPref = Integer.parseInt(qualityStr);
-           }
-         } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }        
-        quality = 0.1f * qualityPref;
+//        int qualityPref = 10;
+//        try {
+//           String qualityStr = prefs.getString("quality", "10");
+//           if(qualityStr != null) {
+//              qualityPref = Integer.parseInt(qualityStr);
+//           }
+//         } catch (NumberFormatException e) {
+//            e.printStackTrace();
+//        }        
+//        quality = 0.1f * qualityPref;
         
         String fileUri = prefs.getString("full_image_uri", "");
         portraitDifferent = prefs.getBoolean("portrait_image_set", false);
@@ -92,12 +100,12 @@ public class ImageFileWallpaper {
         
         if(fileUri != currentFileUri || oldRotate != rotate) {
         	currentFileUri = fileUri;
-        	loadImage(density);
+        	loadImage();
         }
         
         if(portraitFileUri != currentPortraitFileUri || oldRotate != rotate) {
         	currentPortraitFileUri= portraitFileUri;
-        	loadPortraitImage(density);
+        	loadPortraitImage();
         }
     }
     
@@ -213,7 +221,7 @@ public class ImageFileWallpaper {
         }
     }
     
-    public void loadImage(Integer density) {
+    public void loadImage() {
 //        System.out.println("loadImage");
        try {
           if (image != null && !image.isRecycled()) {
@@ -229,13 +237,13 @@ public class ImageFileWallpaper {
              imageLoaded = true;
 
          } catch (Throwable e) {
-             Log.e("ImageFileWallpaper", "0", e);
+             Log.e("ImageFileWallpaper", "Exception during loadImage", e);
          }
      }
      imageLoaded = true;
     }
     
-    public void loadPortraitImage(Integer density) {
+    public void loadPortraitImage() {
        try {
           if (imagePortrait != null && !imagePortrait.isRecycled()) {
              imagePortrait.recycle();
@@ -248,7 +256,7 @@ public class ImageFileWallpaper {
          try {
              imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality);
          } catch (Throwable e) {
-             Log.e("ImageFileWallpaper", "1", e);
+             Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
          }
      }
     }
