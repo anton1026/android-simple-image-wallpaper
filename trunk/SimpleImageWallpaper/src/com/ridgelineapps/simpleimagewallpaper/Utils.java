@@ -24,6 +24,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.net.Uri;
 
 public class Utils {
@@ -160,6 +161,30 @@ public class Utils {
         return bmp;
     }
 
+    public static Point getBitmapSize(Context context, Uri imageURI) throws FileNotFoundException {
+        System.gc();
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        InputStream is = null;
+        
+        try
+        {
+           is = context.getContentResolver().openInputStream(imageURI);
+           context.getContentResolver().openInputStream(imageURI);
+           BitmapFactory.decodeStream(is, null, o);
+           return new Point(o.outWidth, o.outHeight);
+         }
+         finally
+         {
+             try {
+                 is.close();
+             } catch (Exception e) {
+                 // TODO: put all in logs
+                 e.printStackTrace();
+             }
+         }
+    }
+    
     public static Paint createPaint(int r, int g, int b) {
         Paint paint = new Paint();
         paint.setAntiAlias(true);

@@ -20,6 +20,7 @@ package com.ridgelineapps.simpleimagewallpaper;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -41,9 +42,23 @@ public class ReceiveImage extends Activity  {
                 try
                 {
                     Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
+                    String key = "full_image_uri";
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                    
+                    if(prefs.getBoolean("portrait_image_set", false)) {
+                       try {
+                          Point size = Utils.getBitmapSize(this, uri);
+                          if(size.y > size.x){
+                             key = "portrait_full_image_uri";
+                          }
+                       }
+                       catch(Throwable t) {
+                          t.printStackTrace();
+                       }
+                    }
+                    
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("full_image_uri", uri.toString());
+                    editor.putString(key, uri.toString());
                     editor.commit();
                 } catch (Exception e)
                 {
