@@ -69,7 +69,7 @@ public class ImageFileWallpaper {
            DisplayMetrics metrics = service.getBaseContext().getResources().getDisplayMetrics();
            density = metrics.densityDpi;
         }
-        catch(Exception e) {
+        catch(Throwable e) {
            e.printStackTrace();
         }
     }
@@ -223,42 +223,46 @@ public class ImageFileWallpaper {
     
     public void loadImage() {
 //        System.out.println("loadImage");
-       try {
-          if (image != null && !image.isRecycled()) {
-             image.recycle();
-             image = null;
+        synchronized(this) {
+           try {
+              if (image != null && !image.isRecycled()) {
+                 image.recycle();
+                 image = null;
+             }
+           } catch(Throwable e) {
+              e.printStackTrace();
+           }
+         if (!currentFileUri.trim().equals("")) {
+             try {
+                 image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality);
+                 imageLoaded = true;
+    
+             } catch (Throwable e) {
+                 Log.e("ImageFileWallpaper", "Exception during loadImage", e);
+             }
          }
-       } catch(Exception e) {
-          e.printStackTrace();
-       }
-     if (!currentFileUri.trim().equals("")) {
-         try {
-             image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality);
-             imageLoaded = true;
-
-         } catch (Throwable e) {
-             Log.e("ImageFileWallpaper", "Exception during loadImage", e);
-         }
-     }
-     imageLoaded = true;
+         imageLoaded = true;
+        }
     }
     
     public void loadPortraitImage() {
-       try {
-          if (imagePortrait != null && !imagePortrait.isRecycled()) {
-             imagePortrait.recycle();
-             imagePortrait = null;
+        synchronized(this) {
+           try {
+              if (imagePortrait != null && !imagePortrait.isRecycled()) {
+                 imagePortrait.recycle();
+                 imagePortrait = null;
+             }
+           } catch(Throwable e) {
+              e.printStackTrace();
+           }
+         if (!currentPortraitFileUri.trim().equals("")) {
+             try {
+                 imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality);
+             } catch (Throwable e) {
+                 Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
+             }
          }
-       } catch(Exception e) {
-          e.printStackTrace();
-       }
-     if (!currentPortraitFileUri.trim().equals("")) {
-         try {
-             imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality);
-         } catch (Throwable e) {
-             Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
-         }
-     }
+        }
     }
 
     public void cleanup() {

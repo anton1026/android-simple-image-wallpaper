@@ -126,7 +126,7 @@ public class Utils {
                      bmp.recycle();
                      bmp = null;
                   }
-               } catch (Exception e) {
+               } catch (Throwable e) {
                   // TODO: put all in logs
                   e.printStackTrace();
                }
@@ -143,8 +143,11 @@ public class Utils {
             catch(OutOfMemoryError e) {
                 e.printStackTrace();
                 scale *= 2;
-                o2.inSampleSize = scale; 
-                if(retries++ >= 3) {
+                o2 = new BitmapFactory.Options();
+                o2.inSampleSize = scale;
+                o2.inPurgeable = true;
+                o2.inInputShareable = false;
+                if(retries++ >= 5) {
                 	throw e;
                 }
             }
