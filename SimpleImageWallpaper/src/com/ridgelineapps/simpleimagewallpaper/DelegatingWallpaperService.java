@@ -61,7 +61,9 @@ public class DelegatingWallpaperService extends WallpaperService {
                         wallpaper.prefsChanged();
                         if(!wallpaper.imageLoaded) {
                         	wallpaper.loadImage();
-                        	wallpaper.loadPortraitImage();
+                        	if(wallpaper.imageLoaded) {
+                        	    wallpaper.loadPortraitImage();
+                            }
                         }
                     }
                     if (visible) {
