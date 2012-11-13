@@ -59,12 +59,6 @@ public class DelegatingWallpaperService extends WallpaperService {
                 try {
                     if(!wallpaper.imageLoaded) {
                         wallpaper.prefsChanged();
-                        if(!wallpaper.imageLoaded) {
-                        	wallpaper.loadImage();
-                        	if(wallpaper.imageLoaded) {
-                        	    wallpaper.loadPortraitImage();
-                            }
-                        }
                     }
                     if (visible) {
                         canvas = holder.lockCanvas();
