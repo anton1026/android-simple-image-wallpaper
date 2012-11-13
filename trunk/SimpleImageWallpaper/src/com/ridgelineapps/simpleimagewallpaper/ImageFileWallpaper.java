@@ -17,6 +17,8 @@
 
 package com.ridgelineapps.simpleimagewallpaper;
 
+import java.io.FileNotFoundException;
+
 import android.app.Service;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -237,7 +239,13 @@ public class ImageFileWallpaper {
                  image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality);
                  imageLoaded = true;
     
-             } catch (Throwable e) {
+             } 
+             catch(FileNotFoundException e) {
+                 // Fix for bug where sometimes we try to load the image on startup before sd card is mounted.
+                 imageLoaded = false;
+                 return;
+             }
+             catch (Throwable e) {
                  Log.e("ImageFileWallpaper", "Exception during loadImage", e);
              }
          }
@@ -258,7 +266,8 @@ public class ImageFileWallpaper {
          if (!currentPortraitFileUri.trim().equals("")) {
              try {
                  imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality);
-             } catch (Throwable e) {
+             }
+             catch (Throwable e) {
                  Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
              }
          }
