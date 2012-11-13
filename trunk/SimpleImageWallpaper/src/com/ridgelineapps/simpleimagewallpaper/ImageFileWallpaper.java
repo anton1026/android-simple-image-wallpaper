@@ -241,9 +241,12 @@ public class ImageFileWallpaper {
     
              } 
              catch(FileNotFoundException e) {
-                 // Fix for bug where sometimes we try to load the image on startup before sd card is mounted.
-                 imageLoaded = false;
-                 return;
+                 if(e.getMessage() != null && e.getMessage().contains("Permission denied")) {
+                     // Fix for bug where sometimes we try to load the image on startup before sd card is mounted.
+                     imageLoaded = false;
+                     return;
+                 }
+                 Log.e("ImageFileWallpaper", "Exception during loadImage", e);
              }
              catch (Throwable e) {
                  Log.e("ImageFileWallpaper", "Exception during loadImage", e);
