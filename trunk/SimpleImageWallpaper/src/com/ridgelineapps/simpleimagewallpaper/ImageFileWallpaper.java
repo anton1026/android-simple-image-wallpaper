@@ -100,13 +100,22 @@ public class ImageFileWallpaper {
         portraitDifferent = prefs.getBoolean("portrait_image_set", false);
         String portraitFileUri = prefs.getString("portrait_full_image_uri", "");
         
-        if(fileUri != currentFileUri || oldRotate != rotate) {
+        boolean imageLoadedPreviously = imageLoaded;
+        if(fileUri != currentFileUri || oldRotate != rotate || !imageLoaded) {
         	currentFileUri = fileUri;
+        	imageLoadedPreviously = false;
+        }
+        
+        if(!imageLoadedPreviously) {
         	loadImage();
         }
         
         if(portraitFileUri != currentPortraitFileUri || oldRotate != rotate) {
         	currentPortraitFileUri= portraitFileUri;
+        	imageLoadedPreviously = false;
+        }
+        
+        if(!imageLoadedPreviously) {
         	loadPortraitImage();
         }
     }
