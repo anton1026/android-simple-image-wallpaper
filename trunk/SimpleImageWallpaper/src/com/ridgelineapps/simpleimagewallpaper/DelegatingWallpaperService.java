@@ -28,7 +28,6 @@ import android.graphics.Paint;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.service.wallpaper.WallpaperService;
-import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
 
 public class DelegatingWallpaperService extends WallpaperService {
