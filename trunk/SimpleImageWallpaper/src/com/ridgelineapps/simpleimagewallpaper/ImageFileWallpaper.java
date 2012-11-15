@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 
 import android.app.Service;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -45,7 +46,8 @@ public class ImageFileWallpaper {
     String currentPortraitFileUri = "";
     public boolean portraitDifferent;
 
-    public boolean fill = false;
+    public boolean fillPortrait = false;
+    public boolean fillLandscape = false;
     public boolean rotate = false;
     
     Paint bitmapPaint;
@@ -79,7 +81,8 @@ public class ImageFileWallpaper {
     public void prefsChanged() {
         
         SharedPreferences prefs = engine.getPrefs();
-        fill = prefs.getBoolean("image_file_fill_screen", true);
+        fillPortrait = prefs.getBoolean("image_file_fill_screen_portrait", true);
+        fillLandscape = prefs.getBoolean("image_file_fill_screen_landscape", true);
         boolean oldRotate = rotate;
         rotate = prefs.getBoolean("image_file_rotate", false);
         
@@ -159,8 +162,10 @@ public class ImageFileWallpaper {
             float scaleHeight = (float) height / bmp.getHeight();
 
             float scale;
-
-            if (fill) {
+            int orientationType = service.getBaseContext().getResources().getConfiguration().orientation;
+            
+            if ((orientationType == Configuration.ORIENTATION_PORTRAIT && fillPortrait) ||
+                (orientationType == Configuration.ORIENTATION_LANDSCAPE && fillLandscape)) {
                 scale = Math.max(scaleWidth, scaleHeight);
             } else {
                 scale = Math.min(scaleWidth, scaleHeight);
@@ -188,7 +193,8 @@ public class ImageFileWallpaper {
                     scaleWidth = (float) rWidth / bmp.getWidth();
                     scaleHeight = (float) rHeight / bmp.getHeight();
         
-                    if (fill) {
+                    if ((orientationType == Configuration.ORIENTATION_PORTRAIT && fillPortrait) ||
+                        (orientationType == Configuration.ORIENTATION_LANDSCAPE && fillLandscape)) {
                         scale = Math.max(scaleWidth, scaleHeight);
                     } else {
                         scale = Math.min(scaleWidth, scaleHeight);
