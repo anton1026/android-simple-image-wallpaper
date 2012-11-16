@@ -58,6 +58,7 @@
 			android:layout="@layout/portrait_image_preference" 
 			android:dependency="portrait_image_set"
 			/>
+		<!-- pro~ -->
     	<CheckBoxPreference
             android:key="image_file_fill_screen_portrait"
 			android:layout="?android:attr/preferenceLayoutChild"
@@ -65,7 +66,8 @@
             android:title="Fill screen"
             android:defaultValue="true"
             android:summary="Portrait image will be cropped as necessary to fill the screen both horizontally and vertically" />
-		
+		<!-- ~pro -->
+    			
 <!-- 
 		<PreferenceScreen 
 			android:key="portrait_full_image_uri" 
