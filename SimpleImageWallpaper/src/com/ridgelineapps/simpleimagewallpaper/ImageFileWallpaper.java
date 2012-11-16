@@ -80,8 +80,7 @@ public class ImageFileWallpaper {
     public void prefsChanged() {
         
         SharedPreferences prefs = engine.getPrefs();
-        fillPortrait = prefs.getBoolean("image_file_fill_screen_portrait", true);
-        fillLandscape = prefs.getBoolean("image_file_fill_screen_landscape", true);
+        fillLandscape = prefs.getBoolean("image_file_fill_screen", true);
         boolean oldRotate = rotate;
         rotate = prefs.getBoolean("image_file_rotate", false);
         
@@ -101,6 +100,13 @@ public class ImageFileWallpaper {
         String fileUri = prefs.getString("full_image_uri", "");
         portraitDifferent = prefs.getBoolean("portrait_image_set", false);
         String portraitFileUri = prefs.getString("portrait_full_image_uri", "");
+        
+        if(portraitDifferent) {
+           fillPortrait = prefs.getBoolean("image_file_fill_screen_portrait", true);
+        }
+        else {
+           fillPortrait = fillLandscape;
+        }
         
         if(fileUri != currentFileUri || oldRotate != rotate || !imageLoaded) {
         	currentFileUri = fileUri;
