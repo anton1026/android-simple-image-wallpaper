@@ -103,24 +103,26 @@ public class ImageFileWallpaper {
         
         Bitmap.Config oldConfig = config;
         
-        if(configStr == null) {
-           config = null;
-        }
-        else if(configStr.equals("ARGB_8888")) {
-           config = Bitmap.Config.ARGB_8888;
-        }
-        else if(configStr.equals("RGB_565")) {
-           config = Bitmap.Config.RGB_565;
-        }
-        else if(configStr.equals("ARGB_4444")) {
-           config = Bitmap.Config.ARGB_4444;
-        }
-        else {
-           config = null;
-        }
-        if(oldConfig != config) {
-           imageLoaded = false;
-           portraitImageLoaded = false;
+        if(pro) {
+           if(configStr == null) {
+              config = null;
+           }
+           else if(configStr.equals("ARGB_8888")) {
+              config = Bitmap.Config.ARGB_8888;
+           }
+           else if(configStr.equals("RGB_565")) {
+              config = Bitmap.Config.RGB_565;
+           }
+           else if(configStr.equals("ARGB_4444")) {
+              config = Bitmap.Config.ARGB_4444;
+           }
+           else {
+              config = null;
+           }
+           if(oldConfig != config) {
+              imageLoaded = false;
+              portraitImageLoaded = false;
+           }
         }
         
         String fileUri = prefs.getString("full_image_uri", "");
