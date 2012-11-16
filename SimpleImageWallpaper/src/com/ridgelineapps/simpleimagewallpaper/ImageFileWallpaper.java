@@ -17,8 +17,6 @@
 
 package com.ridgelineapps.simpleimagewallpaper;
 
-import java.io.FileNotFoundException;
-
 import android.app.Service;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -132,16 +130,11 @@ public class ImageFileWallpaper {
             return;
         }
         
-        Bitmap bmp;
         int width = canvas.getWidth();
         int height = canvas.getHeight();
+        canvas.drawRect(0, 0, width, height, engine.background);
 
-        if (portraitDifferent && width < height) {
-            bmp = imagePortrait;
-        } else {
-            bmp = image;
-        }
-        
+
         int orientationNow = ((WindowManager) service.getApplication().getSystemService(Service.WINDOW_SERVICE)).getDefaultDisplay().getOrientation();
         if(!orientationSet) {
         	currentOrientation = orientationNow;
@@ -156,6 +149,13 @@ public class ImageFileWallpaper {
         
         if(debug)
             System.out.println("locked:" + engine.screenLocked + ", hide:" + engine.hideWhenScreenIsLocked);
+        
+        Bitmap bmp;
+        if (portraitDifferent && width < height) {
+           bmp = imagePortrait;
+        } else {
+           bmp = image;
+        }
         if (bmp != null && (!engine.screenLocked || !engine.hideWhenScreenIsLocked)) {
             // canvas.drawBitmap(bmp, 0, 0, engine.background);
             float scaleWidth = (float) width / bmp.getWidth();
@@ -182,7 +182,6 @@ public class ImageFileWallpaper {
 
             Rect dest = new Rect(x, y, x + destWidth, y + destHeight);
 
-            canvas.drawRect(0, 0, width, height, engine.background);
             boolean rotated = false;
             if(rotate) {
                 if((width < height && destWidth > destHeight) || (width > height && destHeight > destWidth)) {
@@ -233,74 +232,43 @@ public class ImageFileWallpaper {
             if(!rotated) {
                 canvas.drawBitmap(bmp, null, dest, bitmapPaint);
             }
-        } else {
-            canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), engine.background);
-        }
+        } 
     }
     
-    public void loadImage() {
-//        System.out.println("loadImage");
-        synchronized(this) {
-           try {
-              if (image != null && !image.isRecycled()) {
-                 image.recycle();
-                 image = null;
-             }
-           } catch(Throwable e) {
-              e.printStackTrace();
-           }
-         if (!currentFileUri.trim().equals("")) {
-             try {
-                 image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality);
-                 imageLoaded = true;
-    
-             } 
-             catch(FileNotFoundException e) {
-                 if(e.getMessage() != null && e.getMessage().contains("Permission denied")) {
-                     // Fix for bug where sometimes we try to load the image on startup before sd card is mounted.
-                     imageLoaded = false;
-                     return;
-                 }
-                 Log.e("ImageFileWallpaper", "Exception during loadImage", e);
-             }
-             catch (Throwable e) {
-                 Log.e("ImageFileWallpaper", "Exception during loadImage", e);
-             }
+   public void loadImage() {
+      // System.out.println("loadImage");
+      synchronized (this) {
+         Utils.recycleBitmap(image);
+         image = null;
+         try {
+            if (!currentFileUri.trim().equals("")) {
+               image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality);
+            }
+            imageLoaded = true;
+         } catch (Throwable e) {
+            imageLoaded = false;
+            Log.e("ImageFileWallpaper", "Exception during loadImage", e);
          }
-         imageLoaded = true;
-        }
-    }
-    
-    public void loadPortraitImage() {
-        synchronized(this) {
-           try {
-              if (imagePortrait != null && !imagePortrait.isRecycled()) {
-                 imagePortrait.recycle();
-                 imagePortrait = null;
-             }
-           } catch(Throwable e) {
-              e.printStackTrace();
-           }
+      }
+   }
+
+   public void loadPortraitImage() {
+      synchronized (this) {
+         Utils.recycleBitmap(imagePortrait);
+         imagePortrait = null;
          if (!currentPortraitFileUri.trim().equals("")) {
-             try {
-                 imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality);
-             }
-             catch (Throwable e) {
-                 Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
-             }
+            try {
+               imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality);
+            } catch (Throwable e) {
+               Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
+            }
          }
-        }
-    }
+      }
+   }
 
     public void cleanup() {
-        if (image != null && !image.isRecycled()) {
-            image.recycle();
-        }
-
-        if (imagePortrait != null && !imagePortrait.isRecycled()) {
-            imagePortrait.recycle();
-        }
-        
+        Utils.recycleBitmap(image);
+        Utils.recycleBitmap(imagePortrait);
         currentPortraitFileUri = "";
         currentFileUri = "";
         image = null;

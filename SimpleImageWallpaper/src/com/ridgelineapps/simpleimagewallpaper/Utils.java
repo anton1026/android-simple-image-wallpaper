@@ -121,16 +121,8 @@ public class Utils {
         boolean success = false;
         while(!success) {
             try {
-               try {
-                  if (bmp != null && !bmp.isRecycled()) {
-                     bmp.recycle();
-                     bmp = null;
-                  }
-               } catch (Throwable e) {
-                  // TODO: put all in logs
-                  e.printStackTrace();
-               }
-               
+               Utils.recycleBitmap(bmp);
+               bmp = null;
                System.gc();
                 // TODO: don't load stream twice?
                 is = context.getContentResolver().openInputStream(imageURI);
@@ -142,14 +134,14 @@ public class Utils {
             }
             catch(OutOfMemoryError e) {
                 e.printStackTrace();
+                if(retries++ >= 5) {
+                   throw e;
+                }
                 scale *= 2;
                 o2 = new BitmapFactory.Options();
                 o2.inSampleSize = scale;
                 o2.inPurgeable = true;
                 o2.inInputShareable = false;
-                if(retries++ >= 5) {
-                	throw e;
-                }
             }
             finally
             {
@@ -187,6 +179,16 @@ public class Utils {
              }
          }
     }
+    
+    public static void recycleBitmap(Bitmap image) {
+       try {
+          if (image != null && !image.isRecycled()) {
+             image.recycle();
+          }
+       } catch (Throwable e) {
+          e.printStackTrace();
+       }       
+    }    
     
     public static Paint createPaint(int r, int g, int b) {
         Paint paint = new Paint();

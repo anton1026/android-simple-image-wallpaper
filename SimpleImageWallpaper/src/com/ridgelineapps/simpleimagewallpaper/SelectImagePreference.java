@@ -64,17 +64,8 @@ public class SelectImagePreference extends Preference {
     		updateTextState(view);
         if (imageView != null) {
            imageView.setImageBitmap(null);
-        	
-           try {
-              if (bitmap != null && !bitmap.isRecycled()) {
-                 bitmap.recycle();
-                 bitmap = null;
-              }
-           } catch (Exception e) {
-              // TODO: put all in logs
-              e.printStackTrace();
-           }
-           
+           Utils.recycleBitmap(bitmap);
+           bitmap = null;
            
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             String imageURIString = prefs.getString(prefKey, null);
