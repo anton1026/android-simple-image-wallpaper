@@ -134,10 +134,10 @@ public class Utils {
             }
             catch(OutOfMemoryError e) {
                 e.printStackTrace();
-                if(retries++ >= 7) {
+                if(retries++ >= 15) {
                    throw e;
                 }
-                scale *= 2;
+                scale *= 1.2;
                 o2 = new BitmapFactory.Options();
                 o2.inSampleSize = scale;
                 o2.inPurgeable = true;
