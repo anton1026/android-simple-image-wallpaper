@@ -166,8 +166,10 @@ public class Utils {
         {
            is = context.getContentResolver().openInputStream(imageURI);
            context.getContentResolver().openInputStream(imageURI);
-           BitmapFactory.decodeStream(is, null, o);
-           return new Point(o.outWidth, o.outHeight);
+           Bitmap bitmap = BitmapFactory.decodeStream(is, null, o);
+           Point size = new Point(o.outWidth, o.outHeight);
+           recycleBitmap(bitmap);
+           return size;
          }
          finally
          {
