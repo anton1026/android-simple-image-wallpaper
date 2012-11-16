@@ -134,7 +134,7 @@ public class Utils {
             }
             catch(OutOfMemoryError e) {
                 e.printStackTrace();
-                if(retries++ >= 5) {
+                if(retries++ >= 7) {
                    throw e;
                 }
                 scale *= 2;
