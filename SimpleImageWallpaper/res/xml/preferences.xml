@@ -99,11 +99,11 @@
         android:title="Quality" />
 			 -->
 
-
-	<PreferenceScreen android:title="Donate" android:summary="If you like this app and want to contribute, tap here to visit the market page for the donation version.">
+	<!-- !pro -->
+	<PreferenceScreen android:title="Upgrade to Pro" android:summary="If you like this app, tap here to visit the market page for the pro version.">
 		<intent android:action="android.intent.action.VIEW"
 			android:data="https://market.android.com/details?id=com.ridgelineapps.simpleimagewallpaperdonate" />
 	</PreferenceScreen>
-
+	<!-- !pro -->
 
 </PreferenceScreen>
