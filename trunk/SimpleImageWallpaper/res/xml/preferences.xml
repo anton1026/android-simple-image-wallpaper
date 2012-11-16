@@ -20,17 +20,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
         <CheckBoxPreference
-                android:key="image_file_fill_screen_portrait"
-                android:title="Fill screen (portrait mode)"
+                android:key="image_file_fill_screen"
+                android:title="Fill screen"
                 android:defaultValue="true"
                 android:summary="Image will be cropped as necessary to fill the screen both horizontally and vertically" />
-        
-	    <CheckBoxPreference
-		        android:key="image_file_fill_screen_landscape"
-		        android:title="Fill screen (landscape mode)"
-		        android:defaultValue="true"
-		        android:summary="Image will be cropped as necessary to fill the screen both horizontally and vertically" />
-		
+                
         <CheckBoxPreference
                 android:key="image_file_hide_if_locked"
                 android:title="Hide when locked"
@@ -58,6 +52,14 @@
 			android:title="Portrait different"
 			android:summary="Use separate image for portrait mode" />
 
+    	<CheckBoxPreference
+            android:key="image_file_fill_screen_portrait"
+			android:layout="?android:attr/preferenceLayoutChild"
+			android:dependency="portrait_image_set" 
+            android:title="Fill screen"
+            android:defaultValue="true"
+            android:summary="Portrait image will be cropped as necessary to fill the screen both horizontally and vertically" />
+    	
 		<com.ridgelineapps.simpleimagewallpaper.SelectPortraitImagePreference
 			android:key="image_file_portrait" 
 			android:title=""
