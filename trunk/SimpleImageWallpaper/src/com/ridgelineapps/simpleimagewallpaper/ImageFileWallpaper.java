@@ -33,6 +33,7 @@ import android.view.WindowManager;
 
 public class ImageFileWallpaper {
     public static final boolean debug = false;
+    public static final boolean pro = true;
 
     WallpaperService service;
     DelegatingWallpaperService.SimpleWallpaperEngine engine;
@@ -101,7 +102,7 @@ public class ImageFileWallpaper {
         portraitDifferent = prefs.getBoolean("portrait_image_set", false);
         String portraitFileUri = prefs.getString("portrait_full_image_uri", "");
         
-        if(portraitDifferent) {
+        if(pro && portraitDifferent) {
            fillPortrait = prefs.getBoolean("image_file_fill_screen_portrait", true);
         }
         else {
