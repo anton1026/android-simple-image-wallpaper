@@ -71,6 +71,9 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
                 return true;
             }
         });
+        
+        // Call pref changed directly to clear out values that depend on portrait image being set, if necessary.
+        onSharedPreferenceChanged(sharedPrefs, "portrait_image_set");
     }
 
     void selectBackgroundImage() {
@@ -95,13 +98,15 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
         // startActivityForResult(i, ACTIVITY_SELECT_IMAGE);
     }
     
+    
+    
     @Override
     public void onSharedPreferenceChanged(SharedPreferences shared, String key) {
         if(key.equals("portrait_image_set")) {
             if(!shared.getBoolean("portrait_image_set", false)) {
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                SharedPreferences.Editor editor = prefs.edit();
+                SharedPreferences.Editor editor = shared.edit();
                 editor.putString("portrait_full_image_uri", "");
+                editor.putBoolean("image_file_fill_screen_portrait", false);
                 editor.commit();
             }
         }

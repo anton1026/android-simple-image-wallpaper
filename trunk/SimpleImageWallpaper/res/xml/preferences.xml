@@ -52,6 +52,12 @@
 			android:title="Portrait different"
 			android:summary="Use separate image for portrait mode" />
 
+		<com.ridgelineapps.simpleimagewallpaper.SelectPortraitImagePreference
+			android:key="image_file_portrait" 
+			android:title=""
+			android:layout="@layout/portrait_image_preference" 
+			android:dependency="portrait_image_set"
+			/>
     	<CheckBoxPreference
             android:key="image_file_fill_screen_portrait"
 			android:layout="?android:attr/preferenceLayoutChild"
@@ -59,14 +65,7 @@
             android:title="Fill screen"
             android:defaultValue="true"
             android:summary="Portrait image will be cropped as necessary to fill the screen both horizontally and vertically" />
-    	
-		<com.ridgelineapps.simpleimagewallpaper.SelectPortraitImagePreference
-			android:key="image_file_portrait" 
-			android:title=""
-			android:layout="@layout/portrait_image_preference" 
-			android:dependency="portrait_image_set"
-			/>
-
+		
 <!-- 
 		<PreferenceScreen 
 			android:key="portrait_full_image_uri" 
