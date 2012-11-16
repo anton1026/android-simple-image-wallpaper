@@ -75,8 +75,19 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
         // Call pref changed directly to clear out values that depend on portrait image being set, if necessary.
         onSharedPreferenceChanged(sharedPrefs, "portrait_image_set");
     }
+    
+   @Override
+   protected void onDestroy() {
+      if(selectImagePref != null) {
+         selectImagePref.cleanup();
+      }
+      if(selectPortraitImagePref != null) {
+         selectPortraitImagePref.cleanup();
+      }
+      super.onDestroy();
+   }
 
-    void selectBackgroundImage() {
+   void selectBackgroundImage() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);

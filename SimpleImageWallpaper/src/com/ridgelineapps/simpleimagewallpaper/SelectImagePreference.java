@@ -73,7 +73,7 @@ public class SelectImagePreference extends Preference {
                 Uri imageURI = Uri.parse(imageURIString);
                 try {
                    System.gc();
-                    bitmap = Utils.loadBitmap(getContext(), imageURI, Math.max(128, imageView.getWidth()), Math.max(128, imageView.getHeight()), false, null, 1.0f);
+                    bitmap = Utils.loadBitmap(getContext(), imageURI, Math.max(128, imageView.getWidth()), Math.max(128, imageView.getHeight()), false, null, 1.0f, null);
     	            if(bitmap != null) {
     	            	imageView.setImageBitmap(bitmap);
     	            }
@@ -82,5 +82,18 @@ public class SelectImagePreference extends Preference {
                 }
             }
         }
+    }
+    
+    void cleanup() {
+       try {
+          Utils.recycleBitmap(bitmap);
+          bitmap = null;
+          if(imageView != null) {
+             imageView.setImageBitmap(null);
+          }
+       }
+       catch(Throwable t) {
+          t.printStackTrace();
+       }
     }
 }

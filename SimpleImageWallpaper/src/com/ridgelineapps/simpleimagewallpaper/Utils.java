@@ -28,7 +28,7 @@ import android.graphics.Point;
 import android.net.Uri;
 
 public class Utils {
-    public static Bitmap loadBitmap(Context context, Uri imageURI, int width, int height, boolean rotateIfNecessary, Integer density, float quality) throws FileNotFoundException {
+    public static Bitmap loadBitmap(Context context, Uri imageURI, int width, int height, boolean rotateIfNecessary, Integer density, float quality, Bitmap.Config config) throws FileNotFoundException {
        System.gc();
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
@@ -37,6 +37,11 @@ public class Utils {
            o.inScreenDensity = density;
            o.inTargetDensity = density;
         }
+        
+        if(config != null) {
+           o.inPreferredConfig = config;
+        }
+        
         InputStream is = context.getContentResolver().openInputStream(imageURI);
         Bitmap bmp = BitmapFactory.decodeStream(is, null, o);
         try {
@@ -105,18 +110,22 @@ public class Utils {
 //        scale *= quality;
 
         // Decode with inSampleSize
-        BitmapFactory.Options o2 = new BitmapFactory.Options();
-        o2.inSampleSize = scale;
-        o2.inDither = true;
-//        o2.inPreferQualityOverSpeed = true;
-//        o2.inPurgeable = true;
-//        o2.inInputShareable = false;
+        o = new BitmapFactory.Options();
+        o.inSampleSize = scale;
+        o.inDither = true;
+//        o.inPreferQualityOverSpeed = true;
+//        o.inPurgeable = true;
+//        o.inInputShareable = false;
         if(density != null) {
            // ?
-           o2.inScreenDensity = density;
-           o2.inTargetDensity = density;
+           o.inScreenDensity = density;
+           o.inTargetDensity = density;
         }
 
+        if(config != null) {
+           o.inPreferredConfig = config;
+        }
+        
         int retries = 0;
         boolean success = false;
         while(!success) {
@@ -129,7 +138,7 @@ public class Utils {
                 
         //        System.out.println("s:" + scale + " o:" + o.outWidth + ", " + o.outHeight + " **************************** decoding:" + imageURI);
                 
-                bmp = BitmapFactory.decodeStream(is, null, o2);
+                bmp = BitmapFactory.decodeStream(is, null, o);
                 success = true;
             }
             catch(OutOfMemoryError e) {
@@ -138,10 +147,10 @@ public class Utils {
                    throw e;
                 }
                 scale *= 1.2;
-                o2 = new BitmapFactory.Options();
-                o2.inSampleSize = scale;
-                o2.inPurgeable = true;
-                o2.inInputShareable = false;
+                o = new BitmapFactory.Options();
+                o.inSampleSize = scale;
+                o.inPurgeable = true;
+                o.inInputShareable = false;
             }
             finally
             {
