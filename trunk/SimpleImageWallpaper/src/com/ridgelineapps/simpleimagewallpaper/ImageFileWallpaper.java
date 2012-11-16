@@ -54,7 +54,8 @@ public class ImageFileWallpaper {
     boolean orientationSet = false;
     int currentOrientation;
     int lastOrientation;
-    
+
+    Bitmap.Config config = null;
     float quality = 1.0f;
     
     boolean imageLoaded = false;
@@ -97,6 +98,30 @@ public class ImageFileWallpaper {
 //            e.printStackTrace();
 //        }        
 //        quality = 0.1f * qualityPref;
+        
+        String configStr = prefs.getString("config", null);
+        
+        Bitmap.Config oldConfig = config;
+        
+        if(configStr == null) {
+           config = null;
+        }
+        else if(configStr.equals("ARGB_8888")) {
+           config = Bitmap.Config.ARGB_8888;
+        }
+        else if(configStr.equals("RGB_565")) {
+           config = Bitmap.Config.RGB_565;
+        }
+        else if(configStr.equals("ARGB_4444")) {
+           config = Bitmap.Config.ARGB_4444;
+        }
+        else {
+           config = null;
+        }
+        if(oldConfig != config) {
+           imageLoaded = false;
+           portraitImageLoaded = false;
+        }
         
         String fileUri = prefs.getString("full_image_uri", "");
         portraitDifferent = prefs.getBoolean("portrait_image_set", false);
@@ -249,7 +274,8 @@ public class ImageFileWallpaper {
          image = null;
          try {
             if (!currentFileUri.trim().equals("")) {
-               image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality);
+               imageLoaded = false;
+               image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality, config);
             }
             imageLoaded = true;
          } catch (Throwable e) {
@@ -265,7 +291,8 @@ public class ImageFileWallpaper {
          imagePortrait = null;
          try {
             if (!currentPortraitFileUri.trim().equals("")) {
-               imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality);
+               portraitImageLoaded = false;
+               imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality, config);
             }
             portraitImageLoaded = true;
          } catch (Throwable e) {
