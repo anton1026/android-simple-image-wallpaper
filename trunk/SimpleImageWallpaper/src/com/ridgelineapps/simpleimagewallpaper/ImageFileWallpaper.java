@@ -57,6 +57,7 @@ public class ImageFileWallpaper {
     float quality = 1.0f;
     
     boolean imageLoaded = false;
+    boolean portraitImageLoaded = false;
 
     Integer density = null;
     
@@ -101,22 +102,21 @@ public class ImageFileWallpaper {
         portraitDifferent = prefs.getBoolean("portrait_image_set", false);
         String portraitFileUri = prefs.getString("portrait_full_image_uri", "");
         
-        boolean imageLoadedPreviously = imageLoaded;
         if(fileUri != currentFileUri || oldRotate != rotate || !imageLoaded) {
         	currentFileUri = fileUri;
-        	imageLoadedPreviously = false;
+        	imageLoaded = false;
         }
         
-        if(!imageLoadedPreviously) {
+        if(!imageLoaded) {
         	loadImage();
         }
         
-        if(portraitFileUri != currentPortraitFileUri || oldRotate != rotate) {
+        if(portraitFileUri != currentPortraitFileUri || oldRotate != rotate || !portraitImageLoaded) {
         	currentPortraitFileUri= portraitFileUri;
-        	imageLoadedPreviously = false;
+        	portraitImageLoaded = false;
         }
         
-        if(!imageLoadedPreviously) {
+        if(!portraitImageLoaded) {
         	loadPortraitImage();
         }
     }
@@ -256,12 +256,14 @@ public class ImageFileWallpaper {
       synchronized (this) {
          Utils.recycleBitmap(imagePortrait);
          imagePortrait = null;
-         if (!currentPortraitFileUri.trim().equals("")) {
-            try {
+         try {
+            if (!currentPortraitFileUri.trim().equals("")) {
                imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality);
-            } catch (Throwable e) {
-               Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
             }
+            portraitImageLoaded = true;
+         } catch (Throwable e) {
+            portraitImageLoaded = false;
+            Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
          }
       }
    }
@@ -276,5 +278,6 @@ public class ImageFileWallpaper {
         engine = null;
         service = null;
         imageLoaded = false;
+        portraitImageLoaded = false;
     }
 }

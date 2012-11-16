@@ -56,7 +56,7 @@ public class DelegatingWallpaperService extends WallpaperService {
                 SurfaceHolder holder = getSurfaceHolder();
                 Canvas canvas = null;
                 try {
-                    if(!wallpaper.imageLoaded) {
+                    if(!wallpaper.imageLoaded || !wallpaper.portraitImageLoaded) {
                         wallpaper.prefsChanged();
                     }
                     if (visible) {
@@ -72,7 +72,7 @@ public class DelegatingWallpaperService extends WallpaperService {
                 }
                 handler.removeCallbacks(drawRunner);
                 
-            	if(!wallpaper.imageLoaded || postAgain) {
+            	if(!wallpaper.imageLoaded || !wallpaper.portraitImageLoaded || postAgain) {
             	    postAgain = false;
                     handler.postDelayed(drawRunner, retryDelay * 100L);
                     retryDelay *= 2;
