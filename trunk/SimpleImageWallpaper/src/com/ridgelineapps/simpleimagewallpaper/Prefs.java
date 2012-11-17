@@ -109,7 +109,7 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
                 selectImagePref.updateBackgroundImage(null);
                 selectPortraitImagePref.updateBackgroundImage(null);
                 selectLockscreenImagePref.updateBackgroundImage(null);
-                selectLockscreenImagePref.updateBackgroundImage(null);
+                selectLockscreenPortraitImagePref.updateBackgroundImage(null);
                 return true;
             }
         });
@@ -253,7 +253,7 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
                     selectLockscreenImagePref.updateBackgroundImage(null);
                 }
                 else if(requestCode == LS_SELECT_PORTRAIT_IMAGE) {
-                    selectLockscreenImagePref.updateBackgroundImage(null);
+                    selectLockscreenPortraitImagePref.updateBackgroundImage(null);
                 }
             }
         }
