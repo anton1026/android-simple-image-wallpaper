@@ -33,7 +33,7 @@ import android.view.WindowManager;
 
 public class ImageFileWallpaper {
     public static final boolean debug = false;
-    public static final boolean pro = false;
+    public static final boolean pro = true;
 
     WallpaperService service;
     DelegatingWallpaperService.SimpleWallpaperEngine engine;
