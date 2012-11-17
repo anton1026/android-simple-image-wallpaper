@@ -23,6 +23,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -31,6 +32,8 @@ import android.provider.MediaStore;
 public class Prefs extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     static final int SELECT_IMAGE = 1;
     static final int SELECT_PORTRAIT_IMAGE = 2;
+    static final int LS_SELECT_IMAGE = 3;
+    static final int LS_SELECT_PORTRAIT_IMAGE = 4;
     static final String FILE_URI_PREFIX = "file:///";
     
     private String selectedImagePath;
@@ -38,6 +41,9 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
     
     SelectImagePreference selectImagePref;
     SelectPortraitImagePreference selectPortraitImagePref;
+    
+    SelectLockscreenImagePreference selectLockscreenImagePref;
+    SelectLockscreenPortraitImagePreference selectLockscreenPortraitImagePref;
 
     public String getWallpaperName() {
         return "ImageFile";
@@ -68,6 +74,22 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
         selectPortraitImagePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
                 selectPortraitBackgroundImage();
+                return true;
+            }
+        });
+        
+        selectLockscreenImagePref = (SelectLockscreenImagePreference) findPreference("ls_image_file");
+        selectLockscreenImagePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                selectLockscreenBackgroundImage();
+                return true;
+            }
+        });
+        
+        selectLockscreenPortraitImagePref = (SelectLockscreenPortraitImagePreference) findPreference("ls_image_file_portrait");
+        selectLockscreenPortraitImagePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                selectLockscreenPortraitBackgroundImage();
                 return true;
             }
         });
@@ -109,6 +131,27 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
         // startActivityForResult(i, ACTIVITY_SELECT_IMAGE);
     }
     
+    void selectLockscreenBackgroundImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Image"), LS_SELECT_IMAGE);
+        // Intent i = new Intent(
+        // Intent.ACTION_PICK,
+        // android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+        // startActivityForResult(i, ACTIVITY_SELECT_IMAGE);
+    }
+
+    void selectLockscreenPortraitBackgroundImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Image"), LS_SELECT_PORTRAIT_IMAGE);
+        // Intent i = new Intent(
+        // Intent.ACTION_PICK,
+        // android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+        // startActivityForResult(i, ACTIVITY_SELECT_IMAGE);
+    }
     
     
     @Override
@@ -121,11 +164,23 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
                 editor.commit();
             }
         }
+        if(key.equals("image_file_hide_if_locked")) {
+            if(shared.getBoolean("image_file_hide_if_locked", false)) {
+                CheckBoxPreference cbp = (CheckBoxPreference)findPreference("image_file_image_if_locked");
+                cbp.setChecked(false);                
+            }
+        }
+        if(key.equals("image_file_image_if_locked")) {
+            if(shared.getBoolean("image_file_image_if_locked", false)) {
+                CheckBoxPreference cbp = (CheckBoxPreference)findPreference("image_file_hide_if_locked");
+                cbp.setChecked(false);                
+            }
+        }
     }
     
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == SELECT_IMAGE || requestCode == SELECT_PORTRAIT_IMAGE) {
+            if (requestCode == SELECT_IMAGE || requestCode == SELECT_PORTRAIT_IMAGE || requestCode == LS_SELECT_IMAGE || requestCode == LS_SELECT_PORTRAIT_IMAGE) {
                 Uri selectedImageUri = data.getData();
 
                 filemanagerstring = selectedImageUri.getPath();
@@ -136,19 +191,33 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
 
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                 SharedPreferences.Editor editor = prefs.edit();
-                String key;
+                String key = null;
                 if(requestCode == SELECT_IMAGE) {
                     key = "full_image_uri";
                 }
-                else {
+                else if(requestCode == SELECT_PORTRAIT_IMAGE) {
                     key = "portrait_full_image_uri";
                 }
-                editor.putString(key, finalUri);
+                else if(requestCode == LS_SELECT_IMAGE) {
+                    key = "ls_full_image_uri";
+                }
+                else if(requestCode == LS_SELECT_PORTRAIT_IMAGE) {
+                    key = "ls_portrait_full_image_uri";
+                }
+                if(key != null)
+                    editor.putString(key, finalUri);
                 editor.commit();
-                if(requestCode == SELECT_PORTRAIT_IMAGE) {
-                    selectPortraitImagePref.updateBackgroundImage(null);
-                } else {
+                if(requestCode == SELECT_IMAGE) {
                     selectImagePref.updateBackgroundImage(null);
+                }
+                else if(requestCode == SELECT_PORTRAIT_IMAGE) {
+                    selectPortraitImagePref.updateBackgroundImage(null);
+                }
+                else if(requestCode == LS_SELECT_IMAGE) {
+                    selectLockscreenImagePref.updateBackgroundImage(null);
+                }
+                else if(requestCode == LS_SELECT_PORTRAIT_IMAGE) {
+                    selectLockscreenImagePref.updateBackgroundImage(null);
                 }
             }
         }

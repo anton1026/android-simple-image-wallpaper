@@ -19,18 +19,38 @@
  -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <CheckBoxPreference
+    <PreferenceCategory android:title="Wallpaper">
+		<com.ridgelineapps.simpleimagewallpaper.SelectImagePreference
+			android:key="image_file" android:title=""
+			android:layout="@layout/image_preference" />
+
+		<CheckBoxPreference android:key="portrait_image_set"
+			android:title="Portrait different"
+			android:summary="Use separate image for portrait mode" />
+
+		<com.ridgelineapps.simpleimagewallpaper.SelectPortraitImagePreference
+			android:key="image_file_portrait" 
+			android:title=""
+			android:layout="@layout/portrait_image_preference" 
+			android:dependency="portrait_image_set"
+			/>
+		
+		<!--
+    	<CheckBoxPreference
+            android:key="image_file_fill_screen_portrait"
+			android:layout="?android:attr/preferenceLayoutChild"
+			android:dependency="portrait_image_set" 
+            android:title="Fill screen"
+            android:defaultValue="true"
+            android:summary="Portrait image will be cropped as necessary to fill the screen both horizontally and vertically" />
+		-->
+    
+    	<CheckBoxPreference
                 android:key="image_file_fill_screen"
                 android:title="Fill screen"
                 android:defaultValue="true"
                 android:summary="Image will be cropped as necessary to fill the screen both horizontally and vertically" />
                 
-        <CheckBoxPreference
-                android:key="image_file_hide_if_locked"
-                android:title="Hide when locked"
-                android:defaultValue="false"
-               android:summary="Show a blank background when the device is displaying the lock screen" />
-               
         <CheckBoxPreference
                 android:key="image_file_rotate"
                 android:title="Rotate for best fit"
@@ -47,6 +67,8 @@
         	android:entryValues="@array/config_values"
         	/>
 		 <!-- pro -->
+		 
+</PreferenceCategory>		 
 		
 <!-- 
 		<PreferenceScreen 
@@ -55,31 +77,37 @@
 		</PreferenceScreen>
 -->
 
-		<com.ridgelineapps.simpleimagewallpaper.SelectImagePreference
-			android:key="image_file" android:title=""
-			android:layout="@layout/image_preference" />
+<PreferenceCategory android:title="Lock Screen">
+		<!-- pro -->
+		
+        <CheckBoxPreference
+                android:key="image_file_hide_if_locked"
+                android:title="Blank when locked"
+                android:defaultValue="false"
+               android:summary="Show a blank background when the device is displaying the lock screen" />
+               
+		<CheckBoxPreference android:key="image_file_image_if_locked"
+			android:title="Image when locked"
+			android:summary="Use separate image for lock screen" />
 
-		<CheckBoxPreference android:key="portrait_image_set"
-			android:title="Portrait different"
-			android:summary="Use separate image for portrait mode" />
+		<com.ridgelineapps.simpleimagewallpaper.SelectLockscreenImagePreference
+			android:key="ls_image_file" android:title=""
+			android:layout="@layout/ls_image_preference" />
 
-		<com.ridgelineapps.simpleimagewallpaper.SelectPortraitImagePreference
-			android:key="image_file_portrait" 
+		<CheckBoxPreference android:key="ls_portrait_image_set"
+			android:title="Lock screen portrait different"
+			android:dependency="image_file_image_if_locked" 
+			android:summary="Use separate image for portrait mode in lock screen" />
+
+		<com.ridgelineapps.simpleimagewallpaper.SelectLockscreenPortraitImagePreference
+			android:key="ls_image_file_portrait" 
 			android:title=""
-			android:layout="@layout/portrait_image_preference" 
-			android:dependency="portrait_image_set"
+			android:layout="@layout/ls_portrait_image_preference" 
+			android:dependency="ls_portrait_image_set"
 			/>
 		
 		<!-- pro -->
-    	<CheckBoxPreference
-            android:key="image_file_fill_screen_portrait"
-			android:layout="?android:attr/preferenceLayoutChild"
-			android:dependency="portrait_image_set" 
-            android:title="Fill screen"
-            android:defaultValue="true"
-            android:summary="Portrait image will be cropped as necessary to fill the screen both horizontally and vertically" />
-		<!-- pro -->
-    			
+		
 <!-- 
 		<PreferenceScreen 
 			android:key="portrait_full_image_uri" 
@@ -105,5 +133,7 @@
 			android:data="https://market.android.com/details?id=com.ridgelineapps.simpleimagewallpaperdonate" />
 	</PreferenceScreen>
 	 !pro -->
+	 
+</PreferenceCategory>	 
 
 </PreferenceScreen>
