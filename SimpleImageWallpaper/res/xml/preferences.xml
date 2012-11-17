@@ -92,7 +92,9 @@
 
 		<com.ridgelineapps.simpleimagewallpaper.SelectLockscreenImagePreference
 			android:key="ls_image_file" android:title=""
-			android:layout="@layout/ls_image_preference" />
+			android:layout="@layout/ls_image_preference"
+			android:dependency="image_file_image_if_locked" 
+			 />
 
 		<CheckBoxPreference android:key="ls_portrait_image_set"
 			android:title="Lock portrait different"
@@ -136,6 +138,21 @@
 	</PreferenceScreen>
 	 !pro -->
 	 
+</PreferenceCategory>
+<PreferenceCategory android:title="Changing image">
+        <CheckBoxPreference
+                android:key="changing_image"
+                android:title="..."
+                android:defaultValue="false"
+               	android:summary="Change image to one of a set in a directory" />
+    	<ListPreference
+			android:key="change_interval" 
+			android:title="Change rate" 
+			android:summary="        [not set]"
+            android:entries="@array/change_interval_entries"
+            android:entryValues="@array/change_interval_values"
+			android:dependency="changing_image" 
+            android:defaultValue="1440" />
 </PreferenceCategory>	 
 <PreferenceCategory android:title="Clear">
 	<Preference android:title="Reset images"

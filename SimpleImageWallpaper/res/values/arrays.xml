@@ -8,4 +8,18 @@
         <item>ARGB_8888</item>
         <item>RGB_565</item>
     </string-array>
+    <string-array name="change_interval_values">
+        <item>1</item>
+        <item>10</item>
+        <item>60</item>
+        <item>1440</item>
+        <item>10080</item>
+    </string-array>
+    <string-array name="change_interval_entries">
+        <item>1 Minute</item>
+        <item>10 Minutes</item>
+        <item>Hourly</item>
+        <item>Daily</item>
+        <item>Weekly</item>
+    </string-array>
 </resources>

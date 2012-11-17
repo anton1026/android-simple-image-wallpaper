@@ -24,6 +24,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -114,7 +115,8 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
         });
         
         // Call pref changed directly to clear out values that depend on portrait image being set, if necessary.
-        onSharedPreferenceChanged(sharedPrefs, "portrait_image_set");
+//        onSharedPreferenceChanged(sharedPrefs, "portrait_image_set");
+        updateChangeInterval(sharedPrefs);
     }
     
    @Override
@@ -201,6 +203,15 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
                 cbp.setChecked(false);                
             }
         }
+        if(key.equals("change_interval")) {
+            updateChangeInterval(shared);
+        }
+    }
+    
+    public void updateChangeInterval(SharedPreferences prefs) {
+        ListPreference listPref = (ListPreference)findPreference("change_interval");
+        String value = listPref.getEntry().toString();
+        listPref.setSummary("        " + value);
     }
     
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
