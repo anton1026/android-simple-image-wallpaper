@@ -20,7 +20,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="Wallpaper">
-		<com.ridgelineapps.simpleimagewallpaper.SelectImagePreference
+		<com.ridgelineapps.simpleimagewallpaperdonate.SelectImagePreference
 			android:key="image_file" android:title=""
 			android:layout="@layout/image_preference" />
 
@@ -28,7 +28,7 @@
 			android:title="Portrait different"
 			android:summary="Use separate image for portrait mode" />
 
-		<com.ridgelineapps.simpleimagewallpaper.SelectPortraitImagePreference
+		<com.ridgelineapps.simpleimagewallpaperdonate.SelectPortraitImagePreference
 			android:key="image_file_portrait" 
 			android:title=""
 			android:layout="@layout/portrait_image_preference" 
@@ -99,7 +99,7 @@
 			android:title="Image when locked"
 			android:summary="Use separate image for lock screen" />
 
-		<com.ridgelineapps.simpleimagewallpaper.SelectLockscreenImagePreference
+		<com.ridgelineapps.simpleimagewallpaperdonate.SelectLockscreenImagePreference
 			android:key="ls_image_file" android:title=""
 			android:layout="@layout/ls_image_preference"
 			android:dependency="image_file_image_if_locked" 
@@ -110,7 +110,7 @@
 			android:dependency="image_file_image_if_locked" 
 			android:summary="Use separate image for portrait mode in lock screen" />
 
-		<com.ridgelineapps.simpleimagewallpaper.SelectLockscreenPortraitImagePreference
+		<com.ridgelineapps.simpleimagewallpaperdonate.SelectLockscreenPortraitImagePreference
 			android:key="ls_image_file_portrait" 
 			android:title=""
 			android:layout="@layout/ls_portrait_image_preference" 
@@ -148,6 +148,7 @@
 	 !pro -->
 	 
 </PreferenceCategory>
+<!-- 
 <PreferenceCategory android:title="Experimental">
         <CheckBoxPreference
                 android:key="changing_image"
@@ -162,8 +163,9 @@
             android:entryValues="@array/change_interval_values"
 			android:dependency="changing_image" 
             android:defaultValue="1440" />
-</PreferenceCategory>	 
-<PreferenceCategory android:title="Misc">
+</PreferenceCategory>
+ -->	 
+<PreferenceCategory android:title="Reset">
 	<Preference android:title="Clear images"
                 android:key="clear"
                 /></PreferenceCategory>	 
