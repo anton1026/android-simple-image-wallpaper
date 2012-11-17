@@ -46,7 +46,7 @@ public class DelegatingWallpaperService extends WallpaperService {
             @Override
             public void run() {
                 
-                if(hideWhenScreenIsLocked) {
+                if(hideWhenScreenIsLocked || differentImageWhenScreenIsLocked) {
                     KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
                     screenLocked = keyguardManager.inKeyguardRestrictedInputMode();
                     if(debug)
@@ -56,7 +56,8 @@ public class DelegatingWallpaperService extends WallpaperService {
                 SurfaceHolder holder = getSurfaceHolder();
                 Canvas canvas = null;
                 try {
-                    if(!wallpaper.imageLoaded || !wallpaper.portraitImageLoaded) {
+                    //TODO: post to black screen while images are being loaded to avoid showing old wallpaper for a split second
+                    if(!wallpaper.imageLoaded || !wallpaper.portraitImageLoaded || !wallpaper.ls_imageLoaded || !wallpaper.ls_portraitImageLoaded) {
                         wallpaper.prefsChanged(false);
                     }
                     if (visible) {
@@ -85,7 +86,8 @@ public class DelegatingWallpaperService extends WallpaperService {
         
         int retryDelay = 1;
 
-        boolean hideWhenScreenIsLocked = true;
+        boolean hideWhenScreenIsLocked = false;
+        boolean differentImageWhenScreenIsLocked = false;
         boolean screenLocked = false;
         
         int width;
@@ -138,6 +140,25 @@ public class DelegatingWallpaperService extends WallpaperService {
             super.onVisibilityChanged(visible);
             this.visible = visible;
             removeAndPost();
+            try {
+                if(!visible) {
+                    SurfaceHolder holder = getSurfaceHolder();
+                    Canvas canvas = null;
+                    try {
+                        canvas = holder.lockCanvas();
+                        if (canvas != null) {
+                            wallpaper.drawBlack(canvas);
+                        }
+                    } finally {
+                        if (canvas != null) {
+                            holder.unlockCanvasAndPost(canvas);
+                        }
+                    }
+                }
+            }
+            catch(Throwable t) {
+                t.printStackTrace();
+            }
         }
 
         @Override
