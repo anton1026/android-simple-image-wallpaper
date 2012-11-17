@@ -45,6 +45,13 @@ public class ImageFileWallpaper {
     String currentPortraitFileUri = "";
     public boolean portraitDifferent;
 
+    String ls_currentFileUri = "";
+    Bitmap ls_image;
+
+    Bitmap ls_imagePortrait;
+    String ls_currentPortraitFileUri = "";
+    public boolean ls_portraitDifferent;
+    
     public boolean fillPortrait = false;
     public boolean fillLandscape = false;
     public boolean rotate = false;
@@ -62,6 +69,9 @@ public class ImageFileWallpaper {
     
     boolean imageLoaded = false;
     boolean portraitImageLoaded = false;
+
+    boolean ls_imageLoaded = false;
+    boolean ls_portraitImageLoaded = false;
 
     Integer density = null;
     
@@ -89,6 +99,7 @@ public class ImageFileWallpaper {
             rotate = prefs.getBoolean("image_file_rotate", false);
             
             engine.hideWhenScreenIsLocked = prefs.getBoolean("image_file_hide_if_locked", false);
+            engine.differentImageWhenScreenIsLocked = prefs.getBoolean("image_file_image_if_locked", false);
             
     //        int qualityPref = 10;
     //        try {
@@ -163,6 +174,28 @@ public class ImageFileWallpaper {
             if(!portraitImageLoaded) {
             	loadPortraitImage(false);
             }
+            
+            String ls_fileUri = prefs.getString("ls_full_image_uri", "");
+            ls_portraitDifferent = prefs.getBoolean("ls_portrait_image_set", false);
+            String ls_portraitFileUri = prefs.getString("ls_portrait_full_image_uri", "");
+      
+            if(ls_fileUri != ls_currentFileUri || oldRotate != rotate || !ls_imageLoaded) {
+                ls_currentFileUri = ls_fileUri;
+                ls_imageLoaded = false;
+            }
+            
+            if(!ls_imageLoaded) {
+                ls_loadImage(false);
+            }
+            
+            if(ls_portraitFileUri != ls_currentPortraitFileUri || oldRotate != rotate || !ls_portraitImageLoaded) {
+                ls_currentPortraitFileUri = ls_portraitFileUri;
+                ls_portraitImageLoaded = false;
+            }
+            
+            if(!ls_portraitImageLoaded) {
+                ls_loadPortraitImage(false);
+            }
         }
     }
     
@@ -193,7 +226,7 @@ public class ImageFileWallpaper {
         }
         
         if(debug)
-            System.out.println("locked:" + engine.screenLocked + ", hide:" + engine.hideWhenScreenIsLocked);
+            System.out.println("locked:" + engine.screenLocked + ", hide:" + engine.hideWhenScreenIsLocked + ", different_image:" + engine.differentImageWhenScreenIsLocked);
         
         if(engine.screenLocked && engine.hideWhenScreenIsLocked) {
             if(unloadImages) {
@@ -202,22 +235,44 @@ public class ImageFileWallpaper {
         }
         else {
             Bitmap bmp;
-            if (portraitDifferent && width < height) {
-                if(unloadImages) {
-                    recycleAllImages(imagePortrait);
-                    if(!portraitImageLoaded) {
-                        loadPortraitImage(true);
+            
+            if(engine.screenLocked && engine.differentImageWhenScreenIsLocked) {
+                if (ls_portraitDifferent && width < height) {
+                    if(unloadImages) {
+                        recycleAllImages(ls_imagePortrait);
+                        if(!ls_portraitImageLoaded) {
+                            ls_loadPortraitImage(true);
+                        }
                     }
-                }
-               bmp = imagePortrait;
-            } else {
-                if(unloadImages) {
-                    recycleAllImages(image);
-                    if(!imageLoaded) {
-                        loadImage(true);
+                   bmp = ls_imagePortrait;
+                } else {
+                    if(unloadImages) {
+                        recycleAllImages(ls_image);
+                        if(!ls_imageLoaded) {
+                            ls_loadImage(true);
+                        }
                     }
+                   bmp = ls_image;
+                }                
+            }
+            else {
+                if (portraitDifferent && width < height) {
+                    if(unloadImages) {
+                        recycleAllImages(imagePortrait);
+                        if(!portraitImageLoaded) {
+                            loadPortraitImage(true);
+                        }
+                    }
+                   bmp = imagePortrait;
+                } else {
+                    if(unloadImages) {
+                        recycleAllImages(image);
+                        if(!imageLoaded) {
+                            loadImage(true);
+                        }
+                    }
+                   bmp = image;
                 }
-               bmp = image;
             }
             
             if (bmp != null) {
@@ -300,6 +355,12 @@ public class ImageFileWallpaper {
         } 
     }
     
+    public void drawBlack(Canvas canvas) {
+        int width = canvas.getWidth();
+        int height = canvas.getHeight();
+        canvas.drawRect(0, 0, width, height, engine.background);
+    }
+    
    public void loadImage(boolean force) {
       // System.out.println("loadImage");
        if(force || !unloadImages) {
@@ -339,6 +400,45 @@ public class ImageFileWallpaper {
        }
    }
 
+   public void ls_loadImage(boolean force) {
+       // System.out.println("loadImage");
+        if(force || !unloadImages) {
+           synchronized (this) {
+              Utils.recycleBitmap(ls_image);
+              ls_image = null;
+              try {
+                 if (!ls_currentFileUri.trim().equals("")) {
+                     ls_imageLoaded = false;
+                     ls_image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(ls_currentFileUri), engine.width, engine.height, rotate, density, quality, config);
+                 }
+                 ls_imageLoaded = true;
+              } catch (Throwable e) {
+                  ls_imageLoaded = false;
+                 Log.e("ImageFileWallpaper", "Exception during ls_loadImage", e);
+              }
+           }
+        }
+    }
+
+    public void ls_loadPortraitImage(boolean force) {
+        if(force || !unloadImages) {
+           synchronized (this) {
+              Utils.recycleBitmap(ls_imagePortrait);
+              ls_imagePortrait = null;
+              try {
+                 if (!ls_currentPortraitFileUri.trim().equals("")) {
+                     ls_portraitImageLoaded = false;
+                     ls_imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(ls_currentPortraitFileUri), engine.width, engine.height, rotate, density, quality, config);
+                 }
+                 ls_portraitImageLoaded = true;
+              } catch (Throwable e) {
+                  ls_portraitImageLoaded = false;
+                 Log.e("ImageFileWallpaper", "Exception during ls_loadPortraitImage", e);
+              }
+           }
+        }
+    }
+    
     public void cleanup() {
         currentPortraitFileUri = "";
         currentFileUri = "";
@@ -357,6 +457,16 @@ public class ImageFileWallpaper {
             Utils.recycleBitmap(imagePortrait);
             imagePortrait = null;
             portraitImageLoaded = false;
+        }
+        if(keep != ls_image) {
+            Utils.recycleBitmap(ls_image);
+            ls_image = null;
+            ls_imageLoaded = false;
+        }
+        if(keep != ls_imagePortrait) {
+            Utils.recycleBitmap(ls_imagePortrait);
+            ls_imagePortrait = null;
+            ls_portraitImageLoaded = false;
         }
         System.gc();
     }
