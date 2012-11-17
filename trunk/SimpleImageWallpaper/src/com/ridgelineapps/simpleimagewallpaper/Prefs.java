@@ -58,7 +58,7 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
         
-        SharedPreferences sharedPrefs = getPreferenceManager().getSharedPreferences(); // PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences sharedPrefs = getPreferenceManager().getSharedPreferences(); // PreferenceManager.getDefaultSharedPreferences(this);
         sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 
 
@@ -93,6 +93,25 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
                 return true;
             }
         });
+
+        
+        Preference button = (Preference) findPreference("clear");
+        button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference arg0) {
+                SharedPreferences.Editor editor = sharedPrefs.edit();
+                editor.putString("full_image_uri", "");
+                editor.putString("portrait_full_image_uri", "");
+                editor.putString("ls_full_image_uri", "");
+                editor.putString("ls_portrait_full_image_uri", "");
+                editor.commit();
+                selectImagePref.updateBackgroundImage(null);
+                selectPortraitImagePref.updateBackgroundImage(null);
+                selectLockscreenImagePref.updateBackgroundImage(null);
+                selectLockscreenImagePref.updateBackgroundImage(null);
+                return true;
+            }
+        });
         
         // Call pref changed directly to clear out values that depend on portrait image being set, if necessary.
         onSharedPreferenceChanged(sharedPrefs, "portrait_image_set");
@@ -106,6 +125,12 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
       if(selectPortraitImagePref != null) {
          selectPortraitImagePref.cleanup();
       }
+      if(selectLockscreenImagePref != null) {
+          selectLockscreenImagePref.cleanup();
+       }
+       if(selectLockscreenPortraitImagePref != null) {
+          selectLockscreenPortraitImagePref.cleanup();
+       }
       super.onDestroy();
    }
 
@@ -156,14 +181,14 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
     
     @Override
     public void onSharedPreferenceChanged(SharedPreferences shared, String key) {
-        if(key.equals("portrait_image_set")) {
-            if(!shared.getBoolean("portrait_image_set", false)) {
-                SharedPreferences.Editor editor = shared.edit();
-                editor.putString("portrait_full_image_uri", "");
-                editor.putBoolean("image_file_fill_screen_portrait", false);
-                editor.commit();
-            }
-        }
+//        if(key.equals("portrait_image_set")) {
+//            if(!shared.getBoolean("portrait_image_set", false)) {
+//                SharedPreferences.Editor editor = shared.edit();
+//                editor.putString("portrait_full_image_uri", "");
+//                editor.putBoolean("image_file_fill_screen_portrait", false);
+//                editor.commit();
+//            }
+//        }
         if(key.equals("image_file_hide_if_locked")) {
             if(shared.getBoolean("image_file_hide_if_locked", false)) {
                 CheckBoxPreference cbp = (CheckBoxPreference)findPreference("image_file_image_if_locked");
