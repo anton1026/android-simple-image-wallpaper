@@ -5,7 +5,7 @@
         <item>Lower Memory</item>
     </string-array>
     <string-array name="config_values">
-        <item>ARGB_8888</item>
+        <item>ARGB_8888</item> 
         <item>RGB_565</item>
     </string-array>
     <string-array name="performance_entries">
