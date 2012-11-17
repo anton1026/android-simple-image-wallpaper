@@ -128,13 +128,14 @@ public class ImageFileWallpaper {
         String fileUri = prefs.getString("full_image_uri", "");
         portraitDifferent = prefs.getBoolean("portrait_image_set", false);
         String portraitFileUri = prefs.getString("portrait_full_image_uri", "");
-        
-        if(pro && portraitDifferent) {
-           fillPortrait = prefs.getBoolean("image_file_fill_screen_portrait", true);
-        }
-        else {
+  
+        // Temporarily removed until pref UI can be worked out
+//        if(pro && portraitDifferent) {
+//           fillPortrait = prefs.getBoolean("image_file_fill_screen_portrait", true);
+//        }
+//        else {
            fillPortrait = fillLandscape;
-        }
+//        }
         
         if(fileUri != currentFileUri || oldRotate != rotate || !imageLoaded) {
         	currentFileUri = fileUri;
