@@ -60,13 +60,22 @@
 		<!-- pro -->
         <ListPreference
         	android:title="Image quality"
-        	android:summary="Better image quality vs. lower memory (results may vary depending on device and image)"
+        	android:summary="Higher image quality vs. lower memory (results may vary depending on device and image)"
         	android:key="config"
         	android:defaultValue="ARGB_8888"
         	android:entries="@array/config_entries"
         	android:entryValues="@array/config_values"
         	/>
-		 <!-- pro -->
+        
+        <ListPreference
+        	android:title="Performance"
+        	android:summary="Better performance vs. lower memory (results may vary depending on device and image)"
+        	android:key="performance"
+        	android:defaultValue="performance"
+        	android:entries="@array/performance_entries"
+        	android:entryValues="@array/performance_values"
+        	/>
+        <!-- pro -->
 		 
 </PreferenceCategory>		 
 		
@@ -139,7 +148,7 @@
 	 !pro -->
 	 
 </PreferenceCategory>
-<PreferenceCategory android:title="Changing image">
+<PreferenceCategory android:title="Experimental">
         <CheckBoxPreference
                 android:key="changing_image"
                 android:title="..."
@@ -154,8 +163,8 @@
 			android:dependency="changing_image" 
             android:defaultValue="1440" />
 </PreferenceCategory>	 
-<PreferenceCategory android:title="Clear">
-	<Preference android:title="Reset images"
+<PreferenceCategory android:title="Misc">
+	<Preference android:title="Clear images"
                 android:key="clear"
                 /></PreferenceCategory>	 
 

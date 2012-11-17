@@ -57,7 +57,7 @@ public class DelegatingWallpaperService extends WallpaperService {
                 Canvas canvas = null;
                 try {
                     if(!wallpaper.imageLoaded || !wallpaper.portraitImageLoaded) {
-                        wallpaper.prefsChanged();
+                        wallpaper.prefsChanged(false);
                     }
                     if (visible) {
                         canvas = holder.lockCanvas();
@@ -118,7 +118,7 @@ public class DelegatingWallpaperService extends WallpaperService {
         }
         
         public synchronized void onSharedPreferenceChanged(SharedPreferences shared, String key) {
-        	wallpaper.prefsChanged();
+        	wallpaper.prefsChanged(true);
         }
 
         public SharedPreferences getPrefs() {

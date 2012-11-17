@@ -58,6 +58,8 @@ public class ImageFileWallpaper {
     Bitmap.Config config = null;
     float quality = 1.0f;
     
+    boolean unloadImages = false;
+    
     boolean imageLoaded = false;
     boolean portraitImageLoaded = false;
 
@@ -79,80 +81,88 @@ public class ImageFileWallpaper {
         }
     }
     
-    public void prefsChanged() {
-        
-        SharedPreferences prefs = engine.getPrefs();
-        fillLandscape = prefs.getBoolean("image_file_fill_screen", true);
-        boolean oldRotate = rotate;
-        rotate = prefs.getBoolean("image_file_rotate", false);
-        
-        engine.hideWhenScreenIsLocked = prefs.getBoolean("image_file_hide_if_locked", false);
-        
-//        int qualityPref = 10;
-//        try {
-//           String qualityStr = prefs.getString("quality", "10");
-//           if(qualityStr != null) {
-//              qualityPref = Integer.parseInt(qualityStr);
-//           }
-//         } catch (NumberFormatException e) {
-//            e.printStackTrace();
-//        }        
-//        quality = 0.1f * qualityPref;
-        
-        String configStr = prefs.getString("config", null);
-        
-        Bitmap.Config oldConfig = config;
-        
-        if(pro) {
-           if(configStr == null) {
-              config = null;
-           }
-           else if(configStr.equals("ARGB_8888")) {
-              config = Bitmap.Config.ARGB_8888;
-           }
-           else if(configStr.equals("RGB_565")) {
-              config = Bitmap.Config.RGB_565;
-           }
-           else if(configStr.equals("ARGB_4444")) {
-              config = Bitmap.Config.ARGB_4444;
-           }
-           else {
-              config = null;
-           }
-           if(oldConfig != config) {
-              imageLoaded = false;
-              portraitImageLoaded = false;
-           }
-        }
-        
-        String fileUri = prefs.getString("full_image_uri", "");
-        portraitDifferent = prefs.getBoolean("portrait_image_set", false);
-        String portraitFileUri = prefs.getString("portrait_full_image_uri", "");
-  
-        // Temporarily removed until pref UI can be worked out
-//        if(pro && portraitDifferent) {
-//           fillPortrait = prefs.getBoolean("image_file_fill_screen_portrait", true);
-//        }
-//        else {
-           fillPortrait = fillLandscape;
-//        }
-        
-        if(fileUri != currentFileUri || oldRotate != rotate || !imageLoaded) {
-        	currentFileUri = fileUri;
-        	imageLoaded = false;
-        }
-        
-        if(!imageLoaded) {
-        	loadImage();
-        }
-        
-        if(portraitFileUri != currentPortraitFileUri || oldRotate != rotate || !portraitImageLoaded) {
-        	currentPortraitFileUri= portraitFileUri;
-        	portraitImageLoaded = false;
-        }
-        
-        if(!portraitImageLoaded) {
-        	loadPortraitImage();
+    public void prefsChanged(boolean force) {
+        if(force || !unloadImages) {
+            SharedPreferences prefs = engine.getPrefs();
+            fillLandscape = prefs.getBoolean("image_file_fill_screen", true);
+            boolean oldRotate = rotate;
+            rotate = prefs.getBoolean("image_file_rotate", false);
+            
+            engine.hideWhenScreenIsLocked = prefs.getBoolean("image_file_hide_if_locked", false);
+            
+    //        int qualityPref = 10;
+    //        try {
+    //           String qualityStr = prefs.getString("quality", "10");
+    //           if(qualityStr != null) {
+    //              qualityPref = Integer.parseInt(qualityStr);
+    //           }
+    //         } catch (NumberFormatException e) {
+    //            e.printStackTrace();
+    //        }        
+    //        quality = 0.1f * qualityPref;
+            
+            Bitmap.Config oldConfig = config;
+            
+            if(pro) {
+                String perfStr = prefs.getString("performance", null);
+                if(perfStr != null && perfStr.equals("memory")) {
+                    unloadImages = true;
+                }
+                else {
+                    unloadImages = false;
+                }
+                
+               String configStr = prefs.getString("config", null);
+               if(configStr == null) {
+                  config = null;
+               }
+               else if(configStr.equals("ARGB_8888")) {
+                  config = Bitmap.Config.ARGB_8888;
+               }
+               else if(configStr.equals("RGB_565")) {
+                  config = Bitmap.Config.RGB_565;
+               }
+               else if(configStr.equals("ARGB_4444")) {
+                  config = Bitmap.Config.ARGB_4444;
+               }
+               else {
+                  config = null;
+               }
+               if(oldConfig != config) {
+                  imageLoaded = false;
+                  portraitImageLoaded = false;
+               }
+            }
+            
+            String fileUri = prefs.getString("full_image_uri", "");
+            portraitDifferent = prefs.getBoolean("portrait_image_set", false);
+            String portraitFileUri = prefs.getString("portrait_full_image_uri", "");
+      
+            // Temporarily removed until pref UI can be worked out
+    //        if(pro && portraitDifferent) {
+    //           fillPortrait = prefs.getBoolean("image_file_fill_screen_portrait", true);
+    //        }
+    //        else {
+               fillPortrait = fillLandscape;
+    //        }
+            
+            if(fileUri != currentFileUri || oldRotate != rotate || !imageLoaded) {
+            	currentFileUri = fileUri;
+            	imageLoaded = false;
+            }
+            
+            if(!imageLoaded) {
+            	loadImage(false);
+            }
+            
+            if(portraitFileUri != currentPortraitFileUri || oldRotate != rotate || !portraitImageLoaded) {
+            	currentPortraitFileUri= portraitFileUri;
+            	portraitImageLoaded = false;
+            }
+            
+            if(!portraitImageLoaded) {
+            	loadPortraitImage(false);
+            }
         }
     }
     
@@ -185,136 +195,169 @@ public class ImageFileWallpaper {
         if(debug)
             System.out.println("locked:" + engine.screenLocked + ", hide:" + engine.hideWhenScreenIsLocked);
         
-        Bitmap bmp;
-        if (portraitDifferent && width < height) {
-           bmp = imagePortrait;
-        } else {
-           bmp = image;
-        }
-        if (bmp != null && (!engine.screenLocked || !engine.hideWhenScreenIsLocked)) {
-            // canvas.drawBitmap(bmp, 0, 0, engine.background);
-            float scaleWidth = (float) width / bmp.getWidth();
-            float scaleHeight = (float) height / bmp.getHeight();
-
-            float scale;
-            int orientationType = service.getBaseContext().getResources().getConfiguration().orientation;
-            
-            if ((orientationType == Configuration.ORIENTATION_PORTRAIT && fillPortrait) ||
-                (orientationType == Configuration.ORIENTATION_LANDSCAPE && fillLandscape)) {
-                scale = Math.max(scaleWidth, scaleHeight);
-            } else {
-                scale = Math.min(scaleWidth, scaleHeight);
+        if(engine.screenLocked && engine.hideWhenScreenIsLocked) {
+            if(unloadImages) {
+                recycleAllImages(null);
             }
-
-            int destWidth = (int) (bmp.getWidth() * scale);
-            int destHeight = (int) (bmp.getHeight() * scale);
-
-            int x = 0;
-            int y = 0;
-
-            x = (width - destWidth) / 2;
-            y = (height - destHeight) / 2;
-
-            Rect dest = new Rect(x, y, x + destWidth, y + destHeight);
-
-            boolean rotated = false;
-            if(rotate) {
-                if((width < height && destWidth > destHeight) || (width > height && destHeight > destWidth)) {
-                    rotated = true;
-                    int rWidth = height;
-                    int rHeight = width;
-
-                    scaleWidth = (float) rWidth / bmp.getWidth();
-                    scaleHeight = (float) rHeight / bmp.getHeight();
-        
-                    if ((orientationType == Configuration.ORIENTATION_PORTRAIT && fillPortrait) ||
-                        (orientationType == Configuration.ORIENTATION_LANDSCAPE && fillLandscape)) {
-                        scale = Math.max(scaleWidth, scaleHeight);
-                    } else {
-                        scale = Math.min(scaleWidth, scaleHeight);
-                    }
-         
-                    destWidth = (int) (bmp.getWidth() * scale);
-                    destHeight = (int) (bmp.getHeight() * scale);
-        
-                    if((lastOrientation == Surface.ROTATION_0 && currentOrientation == Surface.ROTATION_90) ||
-                       (lastOrientation == Surface.ROTATION_180 && currentOrientation == Surface.ROTATION_270) ||
-                       (lastOrientation == Surface.ROTATION_90 && currentOrientation == Surface.ROTATION_180) ||
-                       (lastOrientation == Surface.ROTATION_270 && currentOrientation == Surface.ROTATION_0)
-                       ) {
-                        canvas.rotate(270);
-
-                        y = (rHeight - destHeight) / 2;
-                        x = -rWidth + ((rWidth - destWidth) / 2);
-                        dest = new Rect(x, y, x + destWidth, y + destHeight);
-                        canvas.drawBitmap(bmp, null, dest, bitmapPaint);
-                        
-                        canvas.rotate(-270);
-                    }
-                    else {
-                        canvas.rotate(90);
-
-                        y = -rHeight + ((rHeight - destHeight) / 2);
-                        x = (rWidth - destWidth) / 2;
-                        dest = new Rect(x, y, x + destWidth, y + destHeight);
-                        canvas.drawBitmap(bmp, null, dest, bitmapPaint);
-                        
-                        canvas.rotate(-90);
+        }
+        else {
+            Bitmap bmp;
+            if (portraitDifferent && width < height) {
+                if(unloadImages) {
+                    recycleAllImages(imagePortrait);
+                    if(!portraitImageLoaded) {
+                        loadPortraitImage(true);
                     }
                 }
+               bmp = imagePortrait;
+            } else {
+                if(unloadImages) {
+                    recycleAllImages(image);
+                    if(!imageLoaded) {
+                        loadImage(true);
+                    }
+                }
+               bmp = image;
             }
             
-            if(!rotated) {
-                canvas.drawBitmap(bmp, null, dest, bitmapPaint);
+            if (bmp != null) {
+                // canvas.drawBitmap(bmp, 0, 0, engine.background);
+                float scaleWidth = (float) width / bmp.getWidth();
+                float scaleHeight = (float) height / bmp.getHeight();
+    
+                float scale;
+                int orientationType = service.getBaseContext().getResources().getConfiguration().orientation;
+                
+                if ((orientationType == Configuration.ORIENTATION_PORTRAIT && fillPortrait) ||
+                    (orientationType == Configuration.ORIENTATION_LANDSCAPE && fillLandscape)) {
+                    scale = Math.max(scaleWidth, scaleHeight);
+                } else {
+                    scale = Math.min(scaleWidth, scaleHeight);
+                }
+    
+                int destWidth = (int) (bmp.getWidth() * scale);
+                int destHeight = (int) (bmp.getHeight() * scale);
+    
+                int x = 0;
+                int y = 0;
+    
+                x = (width - destWidth) / 2;
+                y = (height - destHeight) / 2;
+    
+                Rect dest = new Rect(x, y, x + destWidth, y + destHeight);
+    
+                boolean rotated = false;
+                if(rotate) {
+                    if((width < height && destWidth > destHeight) || (width > height && destHeight > destWidth)) {
+                        rotated = true;
+                        int rWidth = height;
+                        int rHeight = width;
+    
+                        scaleWidth = (float) rWidth / bmp.getWidth();
+                        scaleHeight = (float) rHeight / bmp.getHeight();
+            
+                        if ((orientationType == Configuration.ORIENTATION_PORTRAIT && fillPortrait) ||
+                            (orientationType == Configuration.ORIENTATION_LANDSCAPE && fillLandscape)) {
+                            scale = Math.max(scaleWidth, scaleHeight);
+                        } else {
+                            scale = Math.min(scaleWidth, scaleHeight);
+                        }
+             
+                        destWidth = (int) (bmp.getWidth() * scale);
+                        destHeight = (int) (bmp.getHeight() * scale);
+            
+                        if((lastOrientation == Surface.ROTATION_0 && currentOrientation == Surface.ROTATION_90) ||
+                           (lastOrientation == Surface.ROTATION_180 && currentOrientation == Surface.ROTATION_270) ||
+                           (lastOrientation == Surface.ROTATION_90 && currentOrientation == Surface.ROTATION_180) ||
+                           (lastOrientation == Surface.ROTATION_270 && currentOrientation == Surface.ROTATION_0)
+                           ) {
+                            canvas.rotate(270);
+    
+                            y = (rHeight - destHeight) / 2;
+                            x = -rWidth + ((rWidth - destWidth) / 2);
+                            dest = new Rect(x, y, x + destWidth, y + destHeight);
+                            canvas.drawBitmap(bmp, null, dest, bitmapPaint);
+                            
+                            canvas.rotate(-270);
+                        }
+                        else {
+                            canvas.rotate(90);
+    
+                            y = -rHeight + ((rHeight - destHeight) / 2);
+                            x = (rWidth - destWidth) / 2;
+                            dest = new Rect(x, y, x + destWidth, y + destHeight);
+                            canvas.drawBitmap(bmp, null, dest, bitmapPaint);
+                            
+                            canvas.rotate(-90);
+                        }
+                    }
+                }
+                
+                if(!rotated) {
+                    canvas.drawBitmap(bmp, null, dest, bitmapPaint);
+                }
             }
         } 
     }
     
-   public void loadImage() {
+   public void loadImage(boolean force) {
       // System.out.println("loadImage");
-      synchronized (this) {
-         Utils.recycleBitmap(image);
-         image = null;
-         try {
-            if (!currentFileUri.trim().equals("")) {
-               imageLoaded = false;
-               image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality, config);
-            }
-            imageLoaded = true;
-         } catch (Throwable e) {
-            imageLoaded = false;
-            Log.e("ImageFileWallpaper", "Exception during loadImage", e);
-         }
-      }
+       if(force || !unloadImages) {
+          synchronized (this) {
+             Utils.recycleBitmap(image);
+             image = null;
+             try {
+                if (!currentFileUri.trim().equals("")) {
+                   imageLoaded = false;
+                   image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality, config);
+                }
+                imageLoaded = true;
+             } catch (Throwable e) {
+                imageLoaded = false;
+                Log.e("ImageFileWallpaper", "Exception during loadImage", e);
+             }
+          }
+       }
    }
 
-   public void loadPortraitImage() {
-      synchronized (this) {
-         Utils.recycleBitmap(imagePortrait);
-         imagePortrait = null;
-         try {
-            if (!currentPortraitFileUri.trim().equals("")) {
-               portraitImageLoaded = false;
-               imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality, config);
-            }
-            portraitImageLoaded = true;
-         } catch (Throwable e) {
-            portraitImageLoaded = false;
-            Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
-         }
-      }
+   public void loadPortraitImage(boolean force) {
+       if(force || !unloadImages) {
+          synchronized (this) {
+             Utils.recycleBitmap(imagePortrait);
+             imagePortrait = null;
+             try {
+                if (!currentPortraitFileUri.trim().equals("")) {
+                   portraitImageLoaded = false;
+                   imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality, config);
+                }
+                portraitImageLoaded = true;
+             } catch (Throwable e) {
+                portraitImageLoaded = false;
+                Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
+             }
+          }
+       }
    }
 
     public void cleanup() {
-        Utils.recycleBitmap(image);
-        Utils.recycleBitmap(imagePortrait);
         currentPortraitFileUri = "";
         currentFileUri = "";
-        image = null;
-        imagePortrait = null;
         engine = null;
         service = null;
-        imageLoaded = false;
-        portraitImageLoaded = false;
+        recycleAllImages(null);
+    }
+    
+    public void recycleAllImages(Bitmap keep) {
+        if(keep != image) {
+            Utils.recycleBitmap(image);
+            image = null;
+            imageLoaded = false;
+        }
+        if(keep != imagePortrait) {
+            Utils.recycleBitmap(imagePortrait);
+            imagePortrait = null;
+            portraitImageLoaded = false;
+        }
+        System.gc();
     }
 }

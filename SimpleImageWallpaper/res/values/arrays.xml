@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="config_entries">
-        <item>High Quality</item>
-        <item>Low Memory</item>
+        <item>Higher Image Quality</item>
+        <item>Lower Memory</item>
     </string-array>
     <string-array name="config_values">
         <item>ARGB_8888</item>
         <item>RGB_565</item>
+    </string-array>
+    <string-array name="performance_entries">
+        <item>Better Performance</item>
+        <item>Lower Memory</item>
+    </string-array>
+    <string-array name="performance_values">
+        <item>performance</item>
+        <item>memory</item>
     </string-array>
     <string-array name="change_interval_values">
         <item>1</item>
