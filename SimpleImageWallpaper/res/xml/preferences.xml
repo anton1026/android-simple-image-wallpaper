@@ -37,7 +37,7 @@
                 android:defaultValue="false"
                android:summary="Automatically rotate the image so the long side of the image lines up with the long side of the screen" />
         
-		<!-- pro -->
+		<!-- pro 
         <ListPreference
         	android:title="Quality"
         	android:summary="Change the preference of higher image quality vs. lower memory (actual results may vary depending on device and image)"
@@ -46,7 +46,7 @@
         	android:entries="@array/config_entries"
         	android:entryValues="@array/config_values"
         	/>
-		<!-- pro -->
+		 pro -->
 		
 <!-- 
 		<PreferenceScreen 
@@ -70,7 +70,7 @@
 			android:dependency="portrait_image_set"
 			/>
 		
-		<!-- pro -->
+		<!-- pro
     	<CheckBoxPreference
             android:key="image_file_fill_screen_portrait"
 			android:layout="?android:attr/preferenceLayoutChild"
@@ -78,7 +78,7 @@
             android:title="Fill screen"
             android:defaultValue="true"
             android:summary="Portrait image will be cropped as necessary to fill the screen both horizontally and vertically" />
-		<!-- pro -->
+		pro -->
     			
 <!-- 
 		<PreferenceScreen 
