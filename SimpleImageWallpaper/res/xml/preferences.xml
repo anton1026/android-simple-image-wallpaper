@@ -59,8 +59,8 @@
         
 		<!-- pro -->
         <ListPreference
-        	android:title="Quality"
-        	android:summary="Change the preference of higher image quality vs. lower memory (actual results may vary depending on device and image)"
+        	android:title="Image quality"
+        	android:summary="Better image quality vs. lower memory (results may vary depending on device and image)"
         	android:key="config"
         	android:defaultValue="ARGB_8888"
         	android:entries="@array/config_entries"
@@ -95,7 +95,7 @@
 			android:layout="@layout/ls_image_preference" />
 
 		<CheckBoxPreference android:key="ls_portrait_image_set"
-			android:title="Lock screen portrait different"
+			android:title="Lock portrait different"
 			android:dependency="image_file_image_if_locked" 
 			android:summary="Use separate image for portrait mode in lock screen" />
 
@@ -105,6 +105,8 @@
 			android:layout="@layout/ls_portrait_image_preference" 
 			android:dependency="ls_portrait_image_set"
 			/>
+		
+		
 		
 		<!-- pro -->
 		
@@ -135,5 +137,9 @@
 	 !pro -->
 	 
 </PreferenceCategory>	 
+<PreferenceCategory android:title="Clear">
+	<Preference android:title="Reset images"
+                android:key="clear"
+                /></PreferenceCategory>	 
 
 </PreferenceScreen>
