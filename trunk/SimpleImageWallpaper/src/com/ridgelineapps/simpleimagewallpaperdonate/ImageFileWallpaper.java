@@ -56,6 +56,8 @@ public class ImageFileWallpaper {
     public boolean fillLandscape = false;
     public boolean rotate = false;
     
+    boolean prefsLoaded = false;
+    
     Paint bitmapPaint;
     
     boolean orientationSet = false;
@@ -64,15 +66,7 @@ public class ImageFileWallpaper {
 
     Bitmap.Config config = null;
     float quality = 1.0f;
-    
     boolean unloadImages = false;
-    
-    boolean imageLoaded = false;
-    boolean portraitImageLoaded = false;
-
-    boolean ls_imageLoaded = false;
-    boolean ls_portraitImageLoaded = false;
-
     Integer density = null;
     
     public ImageFileWallpaper(WallpaperService service, DelegatingWallpaperService.SimpleWallpaperEngine engine) {
@@ -91,11 +85,10 @@ public class ImageFileWallpaper {
         }
     }
     
-    public void prefsChanged(boolean force) {
-        if(force || !unloadImages) {
+    public void loadPrefs(boolean force) {
+        if(force || !prefsLoaded) {
             SharedPreferences prefs = engine.getPrefs();
             fillLandscape = prefs.getBoolean("image_file_fill_screen", true);
-            boolean oldRotate = rotate;
             rotate = prefs.getBoolean("image_file_rotate", false);
             
             engine.hideWhenScreenIsLocked = prefs.getBoolean("image_file_hide_if_locked", false);
@@ -111,8 +104,6 @@ public class ImageFileWallpaper {
     //            e.printStackTrace();
     //        }        
     //        quality = 0.1f * qualityPref;
-            
-            Bitmap.Config oldConfig = config;
             
             if(pro) {
                 String perfStr = prefs.getString("performance", null);
@@ -139,15 +130,11 @@ public class ImageFileWallpaper {
                else {
                   config = null;
                }
-               if(oldConfig != config) {
-                  imageLoaded = false;
-                  portraitImageLoaded = false;
-               }
             }
             
-            String fileUri = prefs.getString("full_image_uri", "");
+            currentFileUri = prefs.getString("full_image_uri", "");
             portraitDifferent = prefs.getBoolean("portrait_image_set", false);
-            String portraitFileUri = prefs.getString("portrait_full_image_uri", "");
+            currentPortraitFileUri = prefs.getString("portrait_full_image_uri", "");
       
             // Temporarily removed until pref UI can be worked out
     //        if(pro && portraitDifferent) {
@@ -156,46 +143,21 @@ public class ImageFileWallpaper {
     //        else {
                fillPortrait = fillLandscape;
     //        }
-            
-            if(fileUri != currentFileUri || oldRotate != rotate || !imageLoaded) {
-            	currentFileUri = fileUri;
-            	imageLoaded = false;
-            }
-            
-            if(!imageLoaded) {
-            	loadImage(false);
-            }
-            
-            if(portraitFileUri != currentPortraitFileUri || oldRotate != rotate || !portraitImageLoaded) {
-            	currentPortraitFileUri= portraitFileUri;
-            	portraitImageLoaded = false;
-            }
-            
-            if(!portraitImageLoaded) {
-            	loadPortraitImage(false);
-            }
-            
-            String ls_fileUri = prefs.getString("ls_full_image_uri", "");
+            ls_currentFileUri = prefs.getString("ls_full_image_uri", "");
             ls_portraitDifferent = prefs.getBoolean("ls_portrait_image_set", false);
-            String ls_portraitFileUri = prefs.getString("ls_portrait_full_image_uri", "");
-      
-            if(ls_fileUri != ls_currentFileUri || oldRotate != rotate || !ls_imageLoaded) {
-                ls_currentFileUri = ls_fileUri;
-                ls_imageLoaded = false;
-            }
+            ls_currentPortraitFileUri = prefs.getString("ls_portrait_full_image_uri", "");
+            prefsLoaded = true;
             
-            if(!ls_imageLoaded) {
-                ls_loadImage(false);
-            }
-            
-            if(ls_portraitFileUri != ls_currentPortraitFileUri || oldRotate != rotate || !ls_portraitImageLoaded) {
-                ls_currentPortraitFileUri = ls_portraitFileUri;
-                ls_portraitImageLoaded = false;
-            }
-            
-            if(!ls_portraitImageLoaded) {
-                ls_loadPortraitImage(false);
-            }
+            recycleAllImages(null);
+        }
+    }
+    
+    public void loadImages() {
+        if(!unloadImages) {
+            loadImage();
+            loadPortraitImage();
+            ls_loadImage();
+            ls_loadPortraitImage();
         }
     }
     
@@ -240,17 +202,13 @@ public class ImageFileWallpaper {
                 if (ls_portraitDifferent && width < height) {
                     if(unloadImages) {
                         recycleAllImages(ls_imagePortrait);
-                        if(!ls_portraitImageLoaded) {
-                            ls_loadPortraitImage(true);
-                        }
+                        ls_loadPortraitImage();
                     }
                    bmp = ls_imagePortrait;
                 } else {
                     if(unloadImages) {
                         recycleAllImages(ls_image);
-                        if(!ls_imageLoaded) {
-                            ls_loadImage(true);
-                        }
+                        ls_loadImage();
                     }
                    bmp = ls_image;
                 }                
@@ -259,17 +217,13 @@ public class ImageFileWallpaper {
                 if (portraitDifferent && width < height) {
                     if(unloadImages) {
                         recycleAllImages(imagePortrait);
-                        if(!portraitImageLoaded) {
-                            loadPortraitImage(true);
-                        }
+                        loadPortraitImage();
                     }
                    bmp = imagePortrait;
                 } else {
                     if(unloadImages) {
                         recycleAllImages(image);
-                        if(!imageLoaded) {
-                            loadImage(true);
-                        }
+                        loadImage();
                     }
                    bmp = image;
                 }
@@ -361,87 +315,69 @@ public class ImageFileWallpaper {
         canvas.drawRect(0, 0, width, height, engine.background);
     }
     
-   public void loadImage(boolean force) {
-      // System.out.println("loadImage");
-       if(force || !unloadImages) {
-          synchronized (this) {
-             Utils.recycleBitmap(image);
-             image = null;
-             try {
-                if (!currentFileUri.trim().equals("")) {
-                   imageLoaded = false;
-                   image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality, config);
-                }
-                imageLoaded = true;
-             } catch (Throwable e) {
-                imageLoaded = false;
-                Log.e("ImageFileWallpaper", "Exception during loadImage", e);
-             }
-          }
-       }
+   public void loadImage() {
+      if(currentFileUri.trim().equals("") || image != null) {
+          return;
+      }
+     Utils.recycleBitmap(image);
+     image = null;
+     try {
+       image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality, config);
+     } catch (Throwable e) {
+        engine.postAgain = true;
+        Log.e("ImageFileWallpaper", "Exception during loadImage", e);
+     }
    }
 
-   public void loadPortraitImage(boolean force) {
-       if(force || !unloadImages) {
-          synchronized (this) {
-             Utils.recycleBitmap(imagePortrait);
-             imagePortrait = null;
-             try {
-                if (!currentPortraitFileUri.trim().equals("")) {
-                   portraitImageLoaded = false;
-                   imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality, config);
-                }
-                portraitImageLoaded = true;
-             } catch (Throwable e) {
-                portraitImageLoaded = false;
-                Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
-             }
-          }
-       }
+   public void loadPortraitImage() {
+      if (currentPortraitFileUri.trim().equals("") || imagePortrait != null) {
+          return;
+      }
+     Utils.recycleBitmap(imagePortrait);
+     imagePortrait = null;
+     try {
+       imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality, config);
+     } catch (Throwable e) {
+        engine.postAgain = true;
+        Log.e("ImageFileWallpaper", "Exception during loadPortraitImage", e);
+     }
    }
 
-   public void ls_loadImage(boolean force) {
-       // System.out.println("loadImage");
-        if(force || !unloadImages) {
-           synchronized (this) {
-              Utils.recycleBitmap(ls_image);
-              ls_image = null;
-              try {
-                 if (!ls_currentFileUri.trim().equals("")) {
-                     ls_imageLoaded = false;
-                     ls_image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(ls_currentFileUri), engine.width, engine.height, rotate, density, quality, config);
-                 }
-                 ls_imageLoaded = true;
-              } catch (Throwable e) {
-                  ls_imageLoaded = false;
-                 Log.e("ImageFileWallpaper", "Exception during ls_loadImage", e);
-              }
-           }
-        }
+   public void ls_loadImage() {
+       if (ls_currentFileUri.trim().equals("") || ls_image != null) {
+           return;
+       }
+      Utils.recycleBitmap(ls_image);
+      ls_image = null;
+      try {
+         ls_image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(ls_currentFileUri), engine.width, engine.height, rotate, density, quality, config);
+      } catch (Throwable e) {
+         engine.postAgain = true;
+         Log.e("ImageFileWallpaper", "Exception during ls_loadImage", e);
+      }
     }
 
-    public void ls_loadPortraitImage(boolean force) {
-        if(force || !unloadImages) {
-           synchronized (this) {
-              Utils.recycleBitmap(ls_imagePortrait);
-              ls_imagePortrait = null;
-              try {
-                 if (!ls_currentPortraitFileUri.trim().equals("")) {
-                     ls_portraitImageLoaded = false;
-                     ls_imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(ls_currentPortraitFileUri), engine.width, engine.height, rotate, density, quality, config);
-                 }
-                 ls_portraitImageLoaded = true;
-              } catch (Throwable e) {
-                  ls_portraitImageLoaded = false;
-                 Log.e("ImageFileWallpaper", "Exception during ls_loadPortraitImage", e);
-              }
-           }
-        }
+    public void ls_loadPortraitImage() {
+       if (ls_currentPortraitFileUri.trim().equals("") || ls_imagePortrait != null) {
+           return;
+       }
+      Utils.recycleBitmap(ls_imagePortrait);
+      ls_imagePortrait = null;
+      try {
+         ls_imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(ls_currentPortraitFileUri), engine.width, engine.height, rotate, density, quality, config);
+      } catch (Throwable e) {
+         engine.postAgain = true;
+         Log.e("ImageFileWallpaper", "Exception during ls_loadPortraitImage", e);
+      }
     }
     
     public void cleanup() {
+        ls_currentFileUri = "";
+        ls_currentPortraitFileUri = "";
         currentPortraitFileUri = "";
         currentFileUri = "";
+        prefsLoaded = false;
+        orientationSet = false;
         engine = null;
         service = null;
         recycleAllImages(null);
@@ -451,22 +387,18 @@ public class ImageFileWallpaper {
         if(keep != image) {
             Utils.recycleBitmap(image);
             image = null;
-            imageLoaded = false;
         }
         if(keep != imagePortrait) {
             Utils.recycleBitmap(imagePortrait);
             imagePortrait = null;
-            portraitImageLoaded = false;
         }
         if(keep != ls_image) {
             Utils.recycleBitmap(ls_image);
             ls_image = null;
-            ls_imageLoaded = false;
         }
         if(keep != ls_imagePortrait) {
             Utils.recycleBitmap(ls_imagePortrait);
             ls_imagePortrait = null;
-            ls_portraitImageLoaded = false;
         }
         System.gc();
     }
