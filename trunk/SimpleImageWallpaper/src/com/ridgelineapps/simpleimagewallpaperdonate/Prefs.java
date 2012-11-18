@@ -212,8 +212,10 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
     
     public void updateChangeInterval(SharedPreferences prefs) {
         ListPreference listPref = (ListPreference)findPreference("change_interval");
-        String value = listPref.getEntry().toString();
-        listPref.setSummary("        " + value);
+        if(listPref != null && listPref.getEntry() != null) {
+            String value = listPref.getEntry().toString();
+            listPref.setSummary("        " + value);
+        }
     }
     
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
