@@ -319,8 +319,6 @@ public class ImageFileWallpaper {
       if(currentFileUri.trim().equals("") || image != null) {
           return;
       }
-     Utils.recycleBitmap(image);
-     image = null;
      try {
        image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentFileUri), engine.width, engine.height, rotate, density, quality, config);
      } catch (Throwable e) {
@@ -333,8 +331,6 @@ public class ImageFileWallpaper {
       if (currentPortraitFileUri.trim().equals("") || imagePortrait != null) {
           return;
       }
-     Utils.recycleBitmap(imagePortrait);
-     imagePortrait = null;
      try {
        imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(currentPortraitFileUri), engine.width, engine.height, rotate, density, quality, config);
      } catch (Throwable e) {
@@ -347,8 +343,6 @@ public class ImageFileWallpaper {
        if (ls_currentFileUri.trim().equals("") || ls_image != null) {
            return;
        }
-      Utils.recycleBitmap(ls_image);
-      ls_image = null;
       try {
          ls_image = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(ls_currentFileUri), engine.width, engine.height, rotate, density, quality, config);
       } catch (Throwable e) {
@@ -361,8 +355,6 @@ public class ImageFileWallpaper {
        if (ls_currentPortraitFileUri.trim().equals("") || ls_imagePortrait != null) {
            return;
        }
-      Utils.recycleBitmap(ls_imagePortrait);
-      ls_imagePortrait = null;
       try {
          ls_imagePortrait = Utils.loadBitmap(engine.getBaseContext(), Uri.parse(ls_currentPortraitFileUri), engine.width, engine.height, rotate, density, quality, config);
       } catch (Throwable e) {
