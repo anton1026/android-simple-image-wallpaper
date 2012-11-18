@@ -57,9 +57,8 @@ public class DelegatingWallpaperService extends WallpaperService {
                 Canvas canvas = null;
                 try {
                     //TODO: post to black screen while images are being loaded to avoid showing old wallpaper for a split second
-                    if(!wallpaper.imageLoaded || !wallpaper.portraitImageLoaded || !wallpaper.ls_imageLoaded || !wallpaper.ls_portraitImageLoaded) {
-                        wallpaper.prefsChanged(false);
-                    }
+                    wallpaper.loadPrefs(false);
+                    wallpaper.loadImages();
                     if (visible) {
                         canvas = holder.lockCanvas();
                         if (canvas != null) {
@@ -73,7 +72,7 @@ public class DelegatingWallpaperService extends WallpaperService {
                 }
                 handler.removeCallbacks(drawRunner);
                 
-            	if(!wallpaper.imageLoaded || !wallpaper.portraitImageLoaded || postAgain) {
+            	if(postAgain) {
             	    postAgain = false;
                     handler.postDelayed(drawRunner, retryDelay * 100L);
                     retryDelay *= 2;
@@ -92,7 +91,7 @@ public class DelegatingWallpaperService extends WallpaperService {
         
         int width;
         int height;
-
+        
         ImageFileWallpaper wallpaper;
         private boolean visible = false;
 
@@ -120,7 +119,7 @@ public class DelegatingWallpaperService extends WallpaperService {
         }
         
         public synchronized void onSharedPreferenceChanged(SharedPreferences shared, String key) {
-        	wallpaper.prefsChanged(true);
+        	wallpaper.loadPrefs(true);
         }
 
         public SharedPreferences getPrefs() {
@@ -140,25 +139,25 @@ public class DelegatingWallpaperService extends WallpaperService {
             super.onVisibilityChanged(visible);
             this.visible = visible;
             removeAndPost();
-            try {
-                if(!visible) {
-                    SurfaceHolder holder = getSurfaceHolder();
-                    Canvas canvas = null;
-                    try {
-                        canvas = holder.lockCanvas();
-                        if (canvas != null) {
-                            wallpaper.drawBlack(canvas);
-                        }
-                    } finally {
-                        if (canvas != null) {
-                            holder.unlockCanvasAndPost(canvas);
-                        }
-                    }
-                }
-            }
-            catch(Throwable t) {
-                t.printStackTrace();
-            }
+//            try {
+//                if(!visible) {
+//                    SurfaceHolder holder = getSurfaceHolder();
+//                    Canvas canvas = null;
+//                    try {
+//                        canvas = holder.lockCanvas();
+//                        if (canvas != null) {
+//                            wallpaper.drawBlack(canvas);
+//                        }
+//                    } finally {
+//                        if (canvas != null) {
+//                            holder.unlockCanvasAndPost(canvas);
+//                        }
+//                    }
+//                }
+//            }
+//            catch(Throwable t) {
+//                t.printStackTrace();
+//            }
         }
 
         @Override
