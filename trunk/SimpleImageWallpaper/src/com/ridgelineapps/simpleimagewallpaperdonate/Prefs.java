@@ -119,6 +119,8 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
         // Call pref changed directly to clear out values that depend on portrait image being set, if necessary.
 //        onSharedPreferenceChanged(sharedPrefs, "portrait_image_set");
         updateChangeInterval(sharedPrefs);
+        
+        setImageBrightnessSummary(sharedPrefs);
     }
     
    @Override
@@ -208,6 +210,31 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
         if(key.equals("change_interval")) {
             updateChangeInterval(shared);
         }
+        if(key.equals("lighten_image")) {
+            int val = Integer.parseInt(shared.getString("lighten_image", "0")); 
+            ListPreference lp = (ListPreference)findPreference("lighten_image");
+            String entry = lp.getEntry().toString();
+            entry = entry.replace("%", "\\%");
+            lp.setSummary(lp.getValue());
+            if(val > 0) {
+                lp = (ListPreference)findPreference("darken_image");
+                lp.setValueIndex(0);                
+            }
+        }
+        if(key.equals("darken_image")) {
+            int val = Integer.parseInt(shared.getString("darken_image", "0")); 
+            ListPreference lp = (ListPreference)findPreference("darken_image");
+            String entry = lp.getEntry().toString();
+            entry = entry.replace("%", "\\%");
+            lp.setSummary(lp.getValue());
+            if(val > 0) {
+                lp = (ListPreference)findPreference("lighten_image");
+                lp.setValueIndex(0);                
+            }
+        }
+        if(key.equals("image_brightness")) {
+            setImageBrightnessSummary(shared);
+        }
     }
     
     public void updateChangeInterval(SharedPreferences prefs) {
@@ -263,6 +290,23 @@ public class Prefs extends PreferenceActivity implements SharedPreferences.OnSha
         }
     }
 
+    public void setImageBrightnessSummary(SharedPreferences shared) {
+        int val = Integer.parseInt(shared.getString("image_brightness", "0")); 
+        ListPreference lp = (ListPreference)findPreference("image_brightness");
+        String entry = lp.getEntries()[val].toString();
+        
+        String summary = "";
+        
+        if(val == 5) {
+            summary = "off";
+        }
+        else {
+            summary = "" + entry;
+        }
+        
+        lp.setSummary("Adjusts image brightness, making the image lighter or darker (current value: " + summary + ")");
+    }
+    
     public String getPath(Uri uri) {
         String[] projection = { MediaStore.Images.Media.DATA };
         Cursor cursor = managedQuery(uri, projection, null, null, null);
