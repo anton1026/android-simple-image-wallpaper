@@ -75,6 +75,54 @@
         	android:entries="@array/performance_entries"
         	android:entryValues="@array/performance_values"
         	/>
+        
+        <!-- 
+        	<CheckBoxPreference android:key="darken_image_cb"
+			android:title="Darken Image"
+			android:summary="" />
+			-->
+
+        <!-- 
+        <ListPreference
+        	android:title="Darken Image"
+        	android:summary=""
+        	android:key="darken_image"
+        	android:defaultValue="0"
+        	android:entries="@array/light_dark_entries"
+        	android:entryValues="@array/light_dark_values"
+        	/>
+ 		-->
+
+        <!-- 
+		<CheckBoxPreference android:key="lighten_image_cb"
+			android:title="Lighten Image"
+			android:summary="" />
+ 		-->
+ 		
+        <!-- 
+        <ListPreference
+        	android:title="Lighten Image"
+        	android:summary=""
+        	android:key="lighten_image"
+        	android:defaultValue="0"
+        	android:entries="@array/light_dark_entries"
+        	android:entryValues="@array/light_dark_values"
+        	/>
+        
+ 		-->
+        <ListPreference
+        	android:title="Image Brightness"
+        	android:summary=""
+        	android:key="image_brightness"
+        	android:defaultValue="0"
+        	android:entries="@array/brightness_entries"
+        	android:entryValues="@array/brightness_values"
+        	/>
+        
+		<CheckBoxPreference android:key="compensate"
+			android:title="Compensate for Bar"
+			android:summary="xxx" />
+		
         <!-- pro -->
 		 
 </PreferenceCategory>		 
