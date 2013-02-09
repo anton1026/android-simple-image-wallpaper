@@ -297,7 +297,7 @@ public class ImageFileWallpaper {
                         fullScreenHeight = (Integer) mGetRawH.invoke(display);
                     }
                 }
-                catch(Exception e) {
+                catch(Throwable t) {
                     //ignored, handled below
                 }
                 
@@ -311,8 +311,8 @@ public class ImageFileWallpaper {
                     }
                 }
             }
-            catch(Exception e) {
-                e.printStackTrace();
+            catch(Throwable t) {
+                t.printStackTrace();
             }
             
             if(fullScreenWidth <= 0 || fullScreenHeight <= 0) {
