@@ -17,18 +17,23 @@
 
 package com.ridgelineapps.simpleimagewallpaperdonate;
 
+import java.lang.reflect.Method;
+
 import android.app.Service;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.service.wallpaper.WallpaperService;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
 
@@ -56,7 +61,7 @@ public class ImageFileWallpaper {
     public boolean fillPortrait = false;
     public boolean fillLandscape = false;
     public boolean rotate = false;
-
+    
     public Paint imageBrightnessPaint;
     public int[] imageBrighnessColors = new int[] {
         Color.argb(200, 0, 0, 0),
@@ -275,6 +280,54 @@ public class ImageFileWallpaper {
         
         int width = canvas.getWidth();
         int height = canvas.getHeight();
+        
+        if(compensateForBar) {
+            //TODO: cache
+            int fullScreenWidth = -1;
+            int fullScreenHeight = -1;
+            try {
+                WindowManager wm = (WindowManager) service.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+                Display display = wm.getDefaultDisplay();   
+                
+                try {
+                    Method mGetRawH = display.getClass().getMethod("getRawHeight");
+                    Method mGetRawW = display.getClass().getMethod("getRawWidth");
+                    if(mGetRawH != null && mGetRawW != null) {
+                        fullScreenWidth = (Integer) mGetRawW.invoke(display);
+                        fullScreenHeight = (Integer) mGetRawH.invoke(display);
+                    }
+                }
+                catch(Exception e) {
+                    //ignored, handled below
+                }
+                
+                if(fullScreenWidth == -1 || fullScreenHeight == -1) {
+                    Method mGetRealSize = Display.class.getMethod("getRealSize");
+                    Point size = new Point();
+                    mGetRealSize.invoke(display, new Object[]{ size });
+                    if(size.x > 0 && size.y > 0) {
+                        fullScreenWidth = size.x;
+                        fullScreenHeight = size.y;
+                    }
+                }
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+            
+            if(fullScreenWidth <= 0 || fullScreenHeight <= 0) {
+                fullScreenWidth = 0;
+                fullScreenHeight = 0;
+            }
+            
+            if(fullScreenWidth > 0 && fullScreenHeight > 0) {
+                width = fullScreenWidth;
+                height = fullScreenHeight;
+            }
+            
+            System.out.println("width=" + width + ", height=" + height + ", canvas_width=" + canvas.getWidth() + ", canvas_height=" + canvas.getHeight());
+        }
+        
         canvas.drawRect(0, 0, width, height, engine.background);
 
 
