@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -55,6 +56,56 @@ public class ImageFileWallpaper {
     public boolean fillPortrait = false;
     public boolean fillLandscape = false;
     public boolean rotate = false;
+
+    public Paint imageBrightnessPaint;
+    public int[] imageBrighnessColors = new int[] {
+        Color.argb(200, 0, 0, 0),
+        Color.argb(160, 0, 0, 0),
+        Color.argb(120, 0, 0, 0),
+        Color.argb(80, 0, 0, 0),
+        Color.argb(40, 0, 0, 0),
+        Color.argb(0, 0, 0, 0),
+        Color.argb(40, 255, 255, 255),
+        Color.argb(80, 255, 255, 255),
+        Color.argb(120, 255, 255, 255),
+        Color.argb(160, 255, 255, 255),
+        Color.argb(200, 255, 255, 255),
+    };
+    
+    /*
+    public int darkenIndex = 0;
+    public int lightenIndex = 0;
+    
+    Paint lightenDarkenPaint;
+    
+    public int[] darkenColors = new int[] {
+        Color.argb(0, 0, 0, 0),
+        Color.argb(25, 0, 0, 0),
+        Color.argb(50, 0, 0, 0),
+        Color.argb(75, 0, 0, 0),
+        Color.argb(100, 0, 0, 0),
+        Color.argb(125, 0, 0, 0),
+        Color.argb(150, 0, 0, 0),
+        Color.argb(175, 0, 0, 0),
+        Color.argb(200, 0, 0, 0),
+        Color.argb(225, 0, 0, 0),
+    };
+    
+    public int[] lightenColors = new int[] {
+        Color.argb(0, 255, 255, 255),
+        Color.argb(25, 255, 255, 255),
+        Color.argb(50, 255, 255, 255),
+        Color.argb(75, 255, 255, 255),
+        Color.argb(100, 255, 255, 255),
+        Color.argb(125, 255, 255, 255),
+        Color.argb(150, 255, 255, 255),
+        Color.argb(175, 255, 255, 255),
+        Color.argb(200, 255, 255, 255),
+        Color.argb(225, 255, 255, 255),
+    };
+    */
+    
+    boolean compensateForBar = false;
     
     boolean prefsLoaded = false;
     
@@ -87,6 +138,8 @@ public class ImageFileWallpaper {
     
     public void loadPrefs(boolean force) {
         if(force || !prefsLoaded) {
+            int imageBrightnessIndex = -1;
+            
             SharedPreferences prefs = engine.getPrefs();
             fillLandscape = prefs.getBoolean("image_file_fill_screen", true);
             rotate = prefs.getBoolean("image_file_rotate", false);
@@ -130,6 +183,24 @@ public class ImageFileWallpaper {
                else {
                   config = null;
                }
+      
+               String imageBrightnessStr = prefs.getString("image_brightness", "-1");
+               imageBrightnessIndex = Integer.parseInt(imageBrightnessStr);
+               /*
+               String darkenStr = prefs.getString("darken_image", "0");
+               if(!prefs.getBoolean("darken_image_cb", false)) {
+                   darkenStr = "0";
+               }
+               
+               darkenIndex = Integer.parseInt(darkenStr) / 10;
+
+               String lightenStr = prefs.getString("lighten_image", "0");
+               if(!prefs.getBoolean("lighten_image_cb", false)) {
+                   lightenStr = "0";
+               }
+               
+               lightenIndex = Integer.parseInt(lightenStr) / 10;
+               */
             }
             
             currentFileUri = prefs.getString("full_image_uri", "");
@@ -146,7 +217,39 @@ public class ImageFileWallpaper {
             ls_currentFileUri = prefs.getString("ls_full_image_uri", "");
             ls_portraitDifferent = prefs.getBoolean("ls_portrait_image_set", false);
             ls_currentPortraitFileUri = prefs.getString("ls_portrait_full_image_uri", "");
+            
+            compensateForBar = prefs.getBoolean("compensate", false);
+            
             prefsLoaded = true;
+            
+            if(imageBrightnessIndex != -1) {
+                int color = imageBrighnessColors[imageBrightnessIndex];
+                imageBrightnessPaint = new Paint();
+                imageBrightnessPaint.setFilterBitmap(true);
+                imageBrightnessPaint.setDither(true);
+                imageBrightnessPaint.setARGB(Color.alpha(color), Color.red(color), Color.green(color), Color.blue(color));
+            }
+            else {
+                imageBrightnessPaint = null;
+            }
+            /*
+            if(darkenIndex > 0) {
+                color = darkenColors[darkenIndex];
+            }
+            else if(lightenIndex > 0) {
+                color = lightenColors[lightenIndex];
+            }
+            
+            if(color != 0) {
+                lightenDarkenPaint = new Paint();
+                lightenDarkenPaint.setFilterBitmap(true);
+                lightenDarkenPaint.setDither(true);
+                lightenDarkenPaint.setARGB(Color.alpha(color), Color.red(color), Color.green(color), Color.blue(color));
+            }
+            else {
+                lightenDarkenPaint = null;
+            }
+            */
             
             recycleAllImages(null);
         }
@@ -304,6 +407,13 @@ public class ImageFileWallpaper {
                 
                 if(!rotated) {
                     canvas.drawBitmap(bmp, null, dest, bitmapPaint);
+                }
+
+//                if(lightenDarkenPaint != null) {
+//                    canvas.drawRect(0, 0, width, height, lightenDarkenPaint);
+//                }
+                if (imageBrightnessPaint != null) {
+                    canvas.drawRect(0, 0, width, height, imageBrightnessPaint);
                 }
             }
         } 
