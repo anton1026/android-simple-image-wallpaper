@@ -120,8 +120,8 @@
         	/>
         
 		<CheckBoxPreference android:key="compensate"
-			android:title="Compensate for Bar"
-			android:summary="xxx" />
+			android:title="Compensate for System Bar"
+			android:summary="Fix image to look the same in both portrait and landscape modes, adjusting for system bar size" />
 		
         <!-- pro -->
 		 
